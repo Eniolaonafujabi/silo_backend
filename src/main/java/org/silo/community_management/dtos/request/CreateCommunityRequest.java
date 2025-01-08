@@ -10,6 +10,8 @@ public class CreateCommunityRequest {
 
     private String founderName;
 
+    private String founderId;
+
     private String communityName;
 
     private String description;

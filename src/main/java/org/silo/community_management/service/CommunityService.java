@@ -4,16 +4,13 @@ import org.silo.community_management.data.model.Community;
 import org.silo.community_management.data.repo.CommunityRepo;
 import org.silo.community_management.dtos.exceptions.CommunityException;
 import org.silo.community_management.dtos.exceptions.ImageVideoException;
-import org.silo.community_management.dtos.request.CreateCommunityRequest;
-import org.silo.community_management.dtos.request.EditCommunityRequest;
-import org.silo.community_management.dtos.request.ViewCommunityRequest;
-import org.silo.community_management.dtos.response.CreateCommunityResponse;
-import org.silo.community_management.dtos.response.EditCommunityResponse;
-import org.silo.community_management.dtos.response.ViewCommunityResponse;
+import org.silo.community_management.dtos.request.*;
+import org.silo.community_management.dtos.response.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 @Service
@@ -34,6 +31,9 @@ public class CommunityService implements CommunityInterface {
         Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getImageVideo());
         String filePublicId = fileResponse.get("public_id").toString();
         Community community = new Community();
+        ArrayList<String> adminId = community.getAdminId();
+        adminId.add(request.getFounderId());
+        community.setAdminId(adminId);
         community.setCommunityName(request.getCommunityName());
         community.setCommunityName(request.getCommunityName());
         community.setCommunityDescription(request.getDescription());
@@ -53,8 +53,7 @@ public class CommunityService implements CommunityInterface {
 
     @Override
     public EditCommunityResponse editCommunity(EditCommunityRequest request) throws IOException {
-        Community community = communityRepo.findById(request.getCommunityId())
-                .orElseThrow(() -> new CommunityException("Community not found"));
+        Community community = findCommunity(request.getCommunityId());
         checkImage(request.getImageVideo());
         Map<String, Object> fileResponse = cloudinaryService.editFile(community.getImageVideoUrl(), request.getImageVideo());
         String filePublicId = fileResponse.get("public_id").toString();
@@ -72,8 +71,7 @@ public class CommunityService implements CommunityInterface {
 
     @Override
     public ViewCommunityResponse viewCommunity(ViewCommunityRequest request) throws IOException {
-        Community community = communityRepo.findById(request.getCommunityId())
-                .orElseThrow(() -> new CommunityException("Community not found"));
+        Community community = findCommunity(request.getCommunityId());
         byte[] imageVideo = cloudinaryService.fetchImage(cloudinaryService.getImageUrl(community.getImageVideoUrl()));
         ViewCommunityResponse response = new ViewCommunityResponse();
         response.setCommunityName(community.getCommunityName());
@@ -82,5 +80,45 @@ public class CommunityService implements CommunityInterface {
         response.setImageVideoUrl(imageVideo);
         response.setMessage("View Community");
         return response;
+    }
+
+    @Override
+    public AddMemberResponse addMemberToCommunity(AddMemberRequest request) {
+        Community community = findCommunity(request.getCommunityId());
+        if(community.getMemberId().contains(request.getMemberId()))throw new CommunityException("Member already exists");
+        community.getMemberId().add(request.getMemberId());
+        communityRepo.save(community);
+        AddMemberResponse response = new AddMemberResponse();
+        response.setMessage("Added Successfully");
+        return response;
+    }
+
+    @Override
+    public AddMemberResponse addAdminToCommunity(AddMemberRequest request) {
+        AddMemberResponse response = new AddMemberResponse();
+
+        Community community = findCommunity(request.getCommunityId());
+        if(community.getMemberId().contains(request.getMemberId())){
+            community.getMemberId().remove(request.getMemberId());
+            community.getAdminId().add(request.getMemberId());
+            response.setMessage("Added Successfully");
+
+        }else {
+            community.getAdminId().add(request.getMemberId());
+            response.setMessage("Added Successfully");
+        }
+        return response;
+    }
+
+    @Override
+    public Boolean validateMemberShip(String id, String communityId) {
+        Community community = findCommunity(communityId);
+        return community.getAdminId().contains(id) || community.getMemberId().contains(id);
+    }
+
+
+    private Community findCommunity(String request) {
+        return communityRepo.findById(request)
+                .orElseThrow(() -> new CommunityException("Community not found"));
     }
 }
