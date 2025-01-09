@@ -20,4 +20,6 @@ public class User {
     private String phoneNumber;
 
     private String bio;
+
+    private String imageVideo;
 }

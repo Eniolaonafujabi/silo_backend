@@ -116,6 +116,12 @@ public class CommunityService implements CommunityInterface {
         return community.getAdminId().contains(id) || community.getMemberId().contains(id);
     }
 
+    @Override
+    public Boolean validateMemberShipRole(String id, String communityId) {
+        Community community = findCommunity(communityId);
+        return community.getAdminId().contains(id);
+    }
+
 
     private Community findCommunity(String request) {
         return communityRepo.findById(request)

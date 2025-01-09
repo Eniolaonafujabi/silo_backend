@@ -8,8 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 public class AddPostRequest {
 
-    private String id;
-
     private String memberId;
 
     private String title;

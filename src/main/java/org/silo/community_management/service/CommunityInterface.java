@@ -19,5 +19,7 @@ public interface CommunityInterface {
 
     Boolean validateMemberShip(String id, String communityId);
 
+    Boolean validateMemberShipRole(String id, String communityId);
+
 //    DeleteCommunityResponse DeleteCommunity(DeleteCommunityRequest request) throws IOException;
 }

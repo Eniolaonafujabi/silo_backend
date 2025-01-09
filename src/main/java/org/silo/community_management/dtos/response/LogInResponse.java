@@ -19,4 +19,6 @@ public class LogInResponse {
 
     private String bio;
 
+    private byte[] file;
+
 }

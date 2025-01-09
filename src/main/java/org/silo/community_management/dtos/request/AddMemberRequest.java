@@ -7,6 +7,8 @@ import lombok.Setter;
 @Getter
 public class AddMemberRequest {
 
+    private String adminId;
+
     private String communityId;
 
     private String memberId;
