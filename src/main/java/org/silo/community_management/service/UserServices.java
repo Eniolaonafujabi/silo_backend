@@ -78,6 +78,10 @@ public class UserServices implements UserInterface{
 
     @Override
     public CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException {
+        userRepo.findById(request.getFounderId())
+                .orElseThrow(() -> new UserException("User not found"));
+        User user = userRepo.findUserById(request.getFounderId());
+        request.setFounderName(user.getName());
         return communityService.createCommunity(request);
     }
 

@@ -1,11 +1,11 @@
 package org.silo.community_management.dtos.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Setter
 @Getter
+@NoArgsConstructor
 public class CreateCommunityRequest {
 
     private String founderName;
@@ -17,4 +17,11 @@ public class CreateCommunityRequest {
     private String description;
 
     private MultipartFile imageVideo;
+
+    public CreateCommunityRequest(MultipartFile file, String communityName, String communityDescription, String founderId) {
+        this.imageVideo = file;
+        this.communityName = communityName;
+        this.description = communityDescription;
+        this.founderId = founderId;
+    }
 }
