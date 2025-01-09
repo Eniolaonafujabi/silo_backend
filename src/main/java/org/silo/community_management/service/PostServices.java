@@ -4,10 +4,12 @@ import org.silo.community_management.data.model.Post;
 import org.silo.community_management.data.repo.PostRepo;
 import org.silo.community_management.dtos.request.AddPostRequest;
 import org.silo.community_management.dtos.response.AddPostResponse;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Map;
 
+@Service
 public class PostServices implements PostInterface{
 
     private final PostRepo postRepo;
