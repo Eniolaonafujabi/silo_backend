@@ -16,7 +16,7 @@ public class MailServices {
     @Value("${sendgrid.api.key}")
     private String sendGridApiKey;
 
-    public String sendEmail(EmailRequest emailRequest) {
+    public String sendEmail(EmailRequest emailRequest) throws IOException {
         Email from = new Email("eniolaonafujabi@gmail.com");
         Email to = new Email(emailRequest.getToEmail());
         Content content = new Content("text/plain", emailRequest.getBody());
@@ -24,15 +24,12 @@ public class MailServices {
 
         SendGrid sg = new SendGrid(sendGridApiKey);
         Request request = new Request();
-        try {
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
             Response response = sg.api(request);
-            return "Email sent! Status Code: " + response.getStatusCode();
-        } catch (IOException ex) {
-            return "Error sending email: " + ex.getMessage();
-        }
+        return "Email sent! Status Code: " + response.getStatusCode();
+
     }
 
 }

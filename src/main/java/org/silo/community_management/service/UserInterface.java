@@ -7,6 +7,10 @@ import java.io.IOException;
 
 public interface UserInterface {
 
+    String sendOtp(String email) throws IOException;
+
+    boolean verifyOtp(String email, String otp);
+
     CreateAccountResponse createAccount(CreateAccountRequest request) throws IOException;
 
     LogInResponse LogInAccount(LogInRequest request) throws IOException;

@@ -4,8 +4,10 @@ import org.silo.community_management.MailServices;
 import org.silo.community_management.data.model.PreUser;
 import org.silo.community_management.data.repo.PreUserRepo;
 import org.silo.community_management.dtos.request.EmailRequest;
+import org.silo.community_management.dtos.request.PreUserException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Random;
 
@@ -21,35 +23,57 @@ public class PreUserService {
         this.mailServices = mailServices;
     }
 
-    public void preSignup(String email) {
-        PreUser preUser = new PreUser();
-        preUser.setEmail(email);
-        String otp = generateOtp();
-        preUser.setOtp(otp);
-        preUser.setOtpExpiration(LocalDateTime.now().plusMinutes(5));
-        preUserRepo.save(preUser);
-        sendOtpEmail(preUser.getEmail(), otp);
+    public String preSignup(String email) throws IOException {
+        if (preUserRepo.findByEmail(email) != null){
+            PreUser preUser = preUserRepo.findPreUserByEmail(email).orElseThrow(()-> new PreUserException("Pre User Not Found"));
+            String otp = generateOtp();
+            preUser.setOtp(otp);
+            preUser.setOtpExpiration(LocalDateTime.now().plusMinutes(45));
+            preUserRepo.save(preUser);
+            return sendOtpEmail(preUser.getEmail(), otp);
+        }else {
+            PreUser preUser = new PreUser();
+            preUser.setEmail(email);
+            String otp = generateOtp();
+            preUser.setOtp(otp);
+            preUser.setOtpExpiration(LocalDateTime.now().plusMinutes(45));
+            preUserRepo.save(preUser);
+            return sendOtpEmail(preUser.getEmail(), otp);}
     }
 
     public boolean verifyOtp(String email, String otp) {
-        PreUser user = preUserRepo.findPreUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        if (user.getOtp().equals(otp) && user.getOtpExpiration().isAfter(LocalDateTime.now())) {
-            user.setVerified(true);
-            preUserRepo.save(user);
-            return true;
+        PreUser user = preUserRepo.findPreUserByEmail(email).orElseThrow(() -> new PreUserException("User not found"));
+        if (user.getOtp().equals(otp)) {
+            if (user.getOtpExpiration().isAfter(LocalDateTime.now())){
+                user.setVerified(true);
+                preUserRepo.save(user);
+                return true;
+            }else {
+                throw new PreUserException("OTP Has Expired");
+            }
+        }else {
+            throw new PreUserException("OTP does not match");
         }
-        return false;
+    }
+
+    public void deletePreUser(String email){
+        preUserRepo.deletePreUserByEmail(email);
+    }
+
+    public boolean checkIfAccountIsVerified(String email){
+        PreUser user = preUserRepo.findPreUserByEmail(email).orElseThrow(() -> new PreUserException("User not Verified"));
+        return user.isVerified();
     }
 
     private String generateOtp() {
         return String.valueOf(new Random().nextInt(999999)).substring(0, 6);
     }
 
-    private void sendOtpEmail(String email, String otp) {
+    private String sendOtpEmail(String email, String otp) throws IOException {
         EmailRequest message  = new EmailRequest();
         message.setToEmail(email);
         message.setSubject("Your OTP Code");
-        message.setBody("Your OTP is: " + otp);
-        mailServices.sendEmail(message);
+        message.setBody("Your OTP code expires in 45 minutes.\nYour OTP is: " + otp);
+        return mailServices.sendEmail(message);
     }
 }

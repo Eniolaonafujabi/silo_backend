@@ -8,4 +8,8 @@ import java.util.Optional;
 public interface PreUserRepo extends MongoRepository<PreUser, String> {
 
     Optional<PreUser> findPreUserByEmail(String email);
+
+    Boolean findByEmail(String email);
+
+    void deletePreUserByEmail(String email);
 }

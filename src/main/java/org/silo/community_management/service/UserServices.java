@@ -1,5 +1,6 @@
 package org.silo.community_management.service;
 
+import org.silo.community_management.data.model.JwtToken;
 import org.silo.community_management.data.model.User;
 import org.silo.community_management.data.repo.UserRepo;
 import org.silo.community_management.dtos.exceptions.UserException;
@@ -11,7 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @Service
-public class UserServices implements UserInterface{
+public class UserServices implements UserInterface {
     private final UserRepo userRepo;
 
     private final CommunityService communityService;
@@ -20,11 +21,27 @@ public class UserServices implements UserInterface{
 
     private final CloudinaryService cloudinaryService;
 
-    public UserServices(UserRepo userRepo, CommunityService communityService, PostServices postServices, CloudinaryService cloudinaryService) {
+    private final PreUserService preUserService;
+
+    private final JwtServices jwtServices;
+
+    public UserServices(UserRepo userRepo, CommunityService communityService, PostServices postServices, CloudinaryService cloudinaryService, PreUserService preUserService, JwtServices jwtServices) {
         this.userRepo = userRepo;
         this.communityService = communityService;
         this.postServices = postServices;
         this.cloudinaryService = cloudinaryService;
+        this.preUserService = preUserService;
+        this.jwtServices = jwtServices;
+    }
+
+    @Override
+    public String sendOtp(String email) throws IOException {
+        return preUserService.preSignup(email);
+    }
+
+    @Override
+    public boolean verifyOtp(String email, String otp) {
+        return preUserService.verifyOtp(email, otp);
     }
 
     @Override
@@ -32,49 +49,55 @@ public class UserServices implements UserInterface{
         CreateAccountResponse response = new CreateAccountResponse();
         validateRequest(request);
         validateRequest2(request.getPhoneNumber(),request.getEmail());
-        if (request.getFile().isEmpty()){
-            User user = new User();
-            user.setName(request.getName());
-            user.setPassword(request.getPassword());
-            user.setEmail(request.getEmail());
-            user.setPhoneNumber(request.getPhoneNumber());
-            user.setBio(request.getBio());
-            userRepo.save(user);
-            response.setMessage("Successfully created user");
+        if(preUserService.checkIfAccountIsVerified(request.getEmail())){
+            if (request.getFile().isEmpty()){
+                User user = new User();
+                user.setName(request.getName());
+                user.setPassword(request.getPassword());
+                user.setEmail(request.getEmail());
+                user.setPhoneNumber(request.getPhoneNumber());
+                user.setBio(request.getBio());
+                userRepo.save(user);
+                response.setMessage("Successfully created user");
+            }else {
+                Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getFile());
+                String filePublicId = fileResponse.get("public_id").toString();
+                User user = new User();
+                user.setName(request.getName());
+                user.setPassword(request.getPassword());
+                user.setEmail(request.getEmail());
+                user.setPhoneNumber(request.getPhoneNumber());
+                user.setBio(request.getBio());
+                user.setImageVideo(filePublicId);
+                userRepo.save(user);
+                response.setMessage("Successfully created user");
+            }
+            return response;
         }else {
-            Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getFile());
-            String filePublicId = fileResponse.get("public_id").toString();
-            User user = new User();
-            user.setName(request.getName());
-            user.setPassword(request.getPassword());
-            user.setEmail(request.getEmail());
-            user.setPhoneNumber(request.getPhoneNumber());
-            user.setBio(request.getBio());
-            user.setImageVideo(filePublicId);
-            userRepo.save(user);
-            response.setMessage("Successfully created user");
+            throw new UserException("Email is not verified");
         }
-        return response;
     }
 
 
     @Override
     public LogInResponse LogInAccount(LogInRequest request) throws IOException {
         LogInResponse response = new LogInResponse();
+        validateRequestForLogINOverAll(request);
+        JwtToken jwtToken = jwtServices.generateAndSaveToken(request.getEmail());
         if (request.getEmail().isEmpty()){
             validateRequestForLogIN(request);
             User user = existByPhoneNumber(request.getPhoneNumber());
-            getingUserInfo(request, response, user);
+            gettingUserInfo(request, response, user , jwtToken);
         }
 
         if (request.getPhoneNumber().isEmpty()){
-            validateRequestForLogIN(request);
+            validateRequestForLogIN2(request);
             User user = existByEmail(request.getEmail());
-            getingUserInfo(request, response, user);
+            gettingUserInfo(request, response, user , jwtToken);
         }
-
         return response;
     }
+
 
     @Override
     public CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException {
@@ -135,6 +158,20 @@ public class UserServices implements UserInterface{
         return userRepo.findUserByPhoneNumber(phoneNumber);
     }
 
+    private void validateRequestForLogINOverAll(LogInRequest request) {
+        if ((request.getPhoneNumber() == null || request.getPhoneNumber().isEmpty())
+                && (request.getEmail() == null || request.getEmail().isEmpty())
+                || request.getPassword() == null || request.getPassword().isEmpty()) {
+            throw new UserException("Request fields cannot be null or empty");
+        }
+    }
+
+    private void validateRequestForLogIN2(LogInRequest request) {
+        if (request.getPhoneNumber().isEmpty() || request.getPassword().isEmpty()){
+            throw new UserException("Request Can,t Be Null");
+        }
+    }
+
     private void validateRequestForLogIN(LogInRequest request) {
         if (request.getPhoneNumber().isEmpty() || request.getPassword().isEmpty()) {
             throw new UserException("Request Can,t Be Null");
@@ -152,18 +189,18 @@ public class UserServices implements UserInterface{
         if (userRepo.findByEmail(email))throw new UserException("Email is already in use");
     }
 
-    private void getingUserInfo(LogInRequest request, LogInResponse response, User user) throws IOException {
+    private void gettingUserInfo(LogInRequest request, LogInResponse response, User user, JwtToken jwtToken) throws IOException {
         if (user.getPassword().equals(request.getPassword())){
             if (user.getImageVideo().isEmpty()){
                 response.setBio(user.getBio());
-                response.setId(user.getId());
+                response.setToken(jwtToken.getToken());
                 response.setEmail(user.getEmail());
                 response.setName(user.getName());
                 response.setPhoneNumber(user.getPhoneNumber());
             }else {
                 byte[] file = cloudinaryService.fetchImage(user.getImageVideo());
                 response.setBio(user.getBio());
-                response.setId(user.getId());
+                response.setToken(jwtToken.getToken());
                 response.setEmail(user.getEmail());
                 response.setName(user.getName());
                 response.setPhoneNumber(user.getPhoneNumber());
@@ -171,5 +208,7 @@ public class UserServices implements UserInterface{
             }
         }
     }
+
+
 
 }
