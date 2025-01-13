@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 
 @Service
@@ -33,17 +34,17 @@ public class CloudinaryService {
     }
 
     public byte[] fetchImage(String imageUrl) throws IOException {
+        URL url = new URL(imageUrl);
         Request request = new Request.Builder()
-                .url(imageUrl)
+                .url(url)
                 .build();
 
-        try (Response response = httpClient.newCall(request).execute()) {
+        Response response = httpClient.newCall(request).execute();
             if (response.isSuccessful() && response.body() != null) {
                 return response.body().bytes();
             } else {
                 throw new CloudinaryException("Failed to fetch image: " + response.code());
             }
-        }
     }
 
     public Map<String, Object> editFile(String publicId, MultipartFile newFile) throws IOException {
