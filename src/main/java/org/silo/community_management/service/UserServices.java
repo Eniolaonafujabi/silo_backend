@@ -168,7 +168,7 @@ public class UserServices implements UserInterface {
     }
 
     private void validateRequestForLogIN2(LogInRequest request) {
-        if (request.getPhoneNumber().isEmpty() || request.getPassword().isEmpty()){
+        if (request.getEmail().isEmpty() || request.getPassword().isEmpty()){
             throw new UserException("Request Can,t Be Null");
         }
     }
