@@ -3,6 +3,7 @@ package org.silo.community_management.service;
 import org.silo.community_management.MailServices;
 import org.silo.community_management.data.model.PreUser;
 import org.silo.community_management.data.repo.PreUserRepo;
+import org.silo.community_management.data.repo.UserRepo;
 import org.silo.community_management.dtos.request.EmailRequest;
 import org.silo.community_management.dtos.request.PreUserException;
 import org.springframework.stereotype.Service;
@@ -16,15 +17,19 @@ public class PreUserService {
 
     private final PreUserRepo preUserRepo;
 
+    private final UserRepo userRepo;
+
     private final MailServices mailServices;
 
-    public PreUserService(PreUserRepo preUserRepo, MailServices mailServices) {
+    public PreUserService(PreUserRepo preUserRepo, UserRepo userRepo, MailServices mailServices) {
         this.preUserRepo = preUserRepo;
+        this.userRepo = userRepo;
         this.mailServices = mailServices;
     }
 
     public String preSignup(String email) throws IOException {
-        if (preUserRepo.findByEmail(email) != null){
+        if (userRepo.findByEmail(email).isPresent())throw new PreUserException(email + " already exists");
+        if (preUserRepo.findByEmail(email).isPresent()){
             PreUser preUser = preUserRepo.findPreUserByEmail(email).orElseThrow(()-> new PreUserException("Pre User Not Found"));
             String otp = generateOtp();
             preUser.setOtp(otp);
@@ -43,6 +48,7 @@ public class PreUserService {
 
     public boolean verifyOtp(String email, String otp) {
         PreUser user = preUserRepo.findPreUserByEmail(email).orElseThrow(() -> new PreUserException("User not found"));
+        if(user.isVerified())return true;
         if (user.getOtp().equals(otp)) {
             if (user.getOtpExpiration().isAfter(LocalDateTime.now())){
                 user.setVerified(true);

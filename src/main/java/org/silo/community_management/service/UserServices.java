@@ -50,7 +50,7 @@ public class UserServices implements UserInterface {
         validateRequest(request);
         validateRequest2(request.getPhoneNumber(),request.getEmail());
         if(preUserService.checkIfAccountIsVerified(request.getEmail())){
-            if (request.getFile().isEmpty()){
+            if (request.getFile()==null){
                 User user = new User();
                 user.setName(request.getName());
                 user.setPassword(request.getPassword());
@@ -83,16 +83,17 @@ public class UserServices implements UserInterface {
     public LogInResponse LogInAccount(LogInRequest request) throws IOException {
         LogInResponse response = new LogInResponse();
         validateRequestForLogINOverAll(request);
-        JwtToken jwtToken = jwtServices.generateAndSaveToken(request.getEmail());
         if (request.getEmail().isEmpty()){
             validateRequestForLogIN(request);
             User user = existByPhoneNumber(request.getPhoneNumber());
+            JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
             gettingUserInfo(request, response, user , jwtToken);
         }
 
         if (request.getPhoneNumber().isEmpty()){
             validateRequestForLogIN2(request);
             User user = existByEmail(request.getEmail());
+            JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
             gettingUserInfo(request, response, user , jwtToken);
         }
         return response;
@@ -185,8 +186,8 @@ public class UserServices implements UserInterface {
     }
 
     private void validateRequest2(String phoneNumber, String email) {
-        if(userRepo.findByPhoneNumber(phoneNumber))throw new UserException("Phone number is already in use");
-        if (userRepo.findByEmail(email))throw new UserException("Email is already in use");
+        if(userRepo.findByPhoneNumber(phoneNumber).isPresent())throw new UserException("Phone number is already in use");
+        if (userRepo.findByEmail(email).isPresent())throw new UserException("Email is already in use");
     }
 
     private void gettingUserInfo(LogInRequest request, LogInResponse response, User user, JwtToken jwtToken) throws IOException {

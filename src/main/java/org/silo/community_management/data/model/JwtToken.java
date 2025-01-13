@@ -12,7 +12,7 @@ public class JwtToken {
 
     @Id
     private String id;
-    private String username;
+    private String userName;
     private String token;
     private Long expirationTime;
 }

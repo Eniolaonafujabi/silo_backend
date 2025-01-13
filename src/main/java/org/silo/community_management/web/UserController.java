@@ -14,7 +14,6 @@ import java.io.IOException;
 
 @CommonsLog
 @RestController("v1/")
-//@CrossOrigin(origins = "*")
 public class UserController {
 
     private final UserServices userServices;
@@ -46,7 +45,7 @@ public class UserController {
     }
 
     @PostMapping(value = "createUser", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createAccount(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<?> createAccount(@RequestParam(value = "file",required = false) MultipartFile file,
                                         @RequestParam("name") String name,
                                         @RequestParam("bio") String bio,
                                         @RequestParam("email") String email,
@@ -61,7 +60,7 @@ public class UserController {
         }
         catch (Exception exception) {
             log.error("Error occurred while sending OTP: ", exception);
-            return new ResponseEntity<>(new ApiResponse(response, true), HttpStatus.CREATED);
+            return new ResponseEntity<>(new ApiResponse(exception.getMessage(), false), HttpStatus.BAD_REQUEST);
 
         }
     }
@@ -75,7 +74,7 @@ public class UserController {
         }
         catch (Exception exception) {
             log.error("Error occurred while sending OTP: ", exception);
-            return new ResponseEntity<>(new ApiResponse(response, true), HttpStatus.CREATED);
+            return new ResponseEntity<>(new ApiResponse(exception.getMessage(), false), HttpStatus.BAD_REQUEST);
 
         }
     }
@@ -93,7 +92,7 @@ public class UserController {
 
         }
         catch (Exception exception) {
-            return new ResponseEntity<>(new ApiResponse(response, true), HttpStatus.CREATED);
+            return new ResponseEntity<>(new ApiResponse(exception.getMessage(), false), HttpStatus.BAD_REQUEST);
 
         }
     }
@@ -113,7 +112,7 @@ public class UserController {
         }
         catch (Exception exception) {
             log.error("Error occurred while sending OTP: ", exception);
-            return new ResponseEntity<>(new ApiResponse(response, true), HttpStatus.CREATED);
+            return new ResponseEntity<>(new ApiResponse(exception.getMessage(), false), HttpStatus.BAD_REQUEST);
 
         }
     }
@@ -127,7 +126,7 @@ public class UserController {
         }
         catch (Exception exception) {
             log.error("Error occurred while sending OTP: ", exception);
-            return new ResponseEntity<>(new ApiResponse(response, true), HttpStatus.CREATED);
+            return new ResponseEntity<>(new ApiResponse(exception.getMessage(), false), HttpStatus.BAD_REQUEST);
 
         }
     }
@@ -141,7 +140,7 @@ public class UserController {
         }
         catch (Exception exception) {
             log.error("Error occurred while sending OTP: ", exception);
-            return new ResponseEntity<>(new ApiResponse(response, true), HttpStatus.CREATED);
+            return new ResponseEntity<>(new ApiResponse(exception.getMessage(), false), HttpStatus.BAD_REQUEST);
 
         }
     }
@@ -155,7 +154,7 @@ public class UserController {
         }
         catch (Exception exception) {
             log.error("Error occurred while sending OTP: ", exception);
-            return new ResponseEntity<>(new ApiResponse(response, true), HttpStatus.CREATED);
+            return new ResponseEntity<>(new ApiResponse(exception.getMessage(), false), HttpStatus.BAD_REQUEST);
 
         }
     }

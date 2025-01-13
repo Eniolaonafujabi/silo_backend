@@ -31,12 +31,12 @@ public class JwtServices implements UserDetailsService {
     }
 
     // Generate and store the JWT token in the database
-    public JwtToken generateAndSaveToken(String username) {
-        String token = jwtUtil.generateToken(username);
+    public JwtToken generateAndSaveToken(String userId) {
+        String token = jwtUtil.generateToken(userId);
 
         // Create a new JwtToken object to store in DB
         JwtToken jwtToken = new JwtToken();
-        jwtToken.setUsername(username);
+        jwtToken.setUserName(userId);
         jwtToken.setToken(token);
         jwtToken.setExpirationTime(System.currentTimeMillis() + 168 * 60 * 60 * 1000);  // Expiration time in milliseconds
 
@@ -44,19 +44,19 @@ public class JwtServices implements UserDetailsService {
     }
 
     // Find the JWT token by username
-    public JwtToken findByUsername(String username) {
-        return jwtTokenRepository.findByUsername(username);
+    public JwtToken findByUserId(String userId) {
+        return jwtTokenRepository.findByUserName(userId);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepo.findUserByEmail(username); // Fetch the user from the database
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        User user = userRepo.findUserById(userId);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
 
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
+                user.getId(),
                 user.getPassword(),
                 new ArrayList<>() // Add authorities if needed
         );

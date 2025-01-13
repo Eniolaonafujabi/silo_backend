@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String path = request.getRequestURI();
         // Skip the filter for public endpoints
-        if (path.equals("/sendOtp") || path.equals("/verifyOtp") || path.equals("/createUser")) {
+        if (path.equals("/sendOtp") || path.equals("/verifyOtp") || path.equals("/createUser") || path.equals("/logIn")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -41,10 +41,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7);
-            String username = jwtUtil.extractUsername(token);
+            String userId = jwtUtil.extractUsername(token);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = jwtServices.loadUserByUsername(username);
+            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = jwtServices.loadUserByUsername(userId);
 
                 if (jwtUtil.validateToken(token, userDetails.getUsername())) {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
