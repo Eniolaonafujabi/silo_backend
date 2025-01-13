@@ -6,6 +6,7 @@ import org.silo.community_management.data.repo.UserRepo;
 import org.silo.community_management.dtos.exceptions.UserException;
 import org.silo.community_management.dtos.request.*;
 import org.silo.community_management.dtos.response.*;
+import org.silo.community_management.dtos.util.JwtUtil;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -25,13 +26,16 @@ public class UserServices implements UserInterface {
 
     private final JwtServices jwtServices;
 
-    public UserServices(UserRepo userRepo, CommunityService communityService, PostServices postServices, CloudinaryService cloudinaryService, PreUserService preUserService, JwtServices jwtServices) {
+    private final JwtUtil jwtUtil;
+
+    public UserServices(UserRepo userRepo, CommunityService communityService, PostServices postServices, CloudinaryService cloudinaryService, PreUserService preUserService, JwtServices jwtServices, JwtUtil jwtUtil) {
         this.userRepo = userRepo;
         this.communityService = communityService;
         this.postServices = postServices;
         this.cloudinaryService = cloudinaryService;
         this.preUserService = preUserService;
         this.jwtServices = jwtServices;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -103,17 +107,19 @@ public class UserServices implements UserInterface {
 
     @Override
     public CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException {
-        userRepo.findById(request.getFounderId())
+        User user = userRepo.findById(jwtUtil.extractUsername(request.getToken()))
                 .orElseThrow(() -> new UserException("User not found"));
-        User user = userRepo.findUserById(request.getFounderId());
         request.setFounderName(user.getName());
+        request.setToken(jwtUtil.extractUsername(request.getToken()));
         return communityService.createCommunity(request);
     }
 
     @Override
     public AddPostResponse addPost(AddPostRequest request) throws IOException {
         AddPostResponse response = new AddPostResponse();
-        if(communityService.validateMemberShip(request.getMemberId(),request.getCommunityId())){
+        String extractedtedToken = jwtUtil.extractUsername(request.getToken());
+        if(communityService.validateMemberShip(extractedtedToken, request.getCommunityId())){
+            request.setToken(extractedtedToken);
             response = postServices.addPost(request);
         }
         return response;
@@ -122,7 +128,7 @@ public class UserServices implements UserInterface {
     @Override
     public AddMemberResponse addMember(AddMemberRequest request) {
         AddMemberResponse response =  new AddMemberResponse();
-        if(communityService.validateMemberShipRole(request.getMemberId(), request.getCommunityId())){
+        if(communityService.validateMemberShipRole(request.getAdminId(), request.getCommunityId())){
             response = communityService.addMemberToCommunity(request);
         }else {
             throw new UserException("Member ship is not valid Can,t Add member");
@@ -133,7 +139,7 @@ public class UserServices implements UserInterface {
     @Override
     public AddMemberResponse addAdmin(AddMemberRequest request) {
         AddMemberResponse response =  new AddMemberResponse();
-        if(communityService.validateMemberShipRole(request.getMemberId(), request.getCommunityId())){
+        if(communityService.validateMemberShipRole(request.getAdminId(), request.getCommunityId())){
             response = communityService.addAdminToCommunity(request);
         }else {
             throw new UserException("Member ship is not valid Can,t Add member");
@@ -144,7 +150,7 @@ public class UserServices implements UserInterface {
     @Override
     public ViewCommunityResponse viewCommunity(ViewCommunityRequest request) throws IOException {
         ViewCommunityResponse response =  new ViewCommunityResponse();
-        if(communityService.validateMemberShipRole(request.getMemberId(), request.getCommunityId())){
+        if(communityService.validateMemberShip(jwtUtil.extractUsername(request.getToken()), request.getCommunityId())){
             response = communityService.viewCommunity(request);
         }else {
             throw new UserException("Member ship is not valid Can,t view community");

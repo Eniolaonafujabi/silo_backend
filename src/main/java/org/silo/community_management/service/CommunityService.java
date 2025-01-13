@@ -1,5 +1,6 @@
 package org.silo.community_management.service;
 
+import org.jetbrains.annotations.NotNull;
 import org.silo.community_management.data.model.Community;
 import org.silo.community_management.data.repo.CommunityRepo;
 import org.silo.community_management.dtos.exceptions.CommunityException;
@@ -31,14 +32,7 @@ public class CommunityService implements CommunityInterface {
         Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getImageVideo());
 //        String filePublicId = fileResponse.get("public_id").toString();
         String filePublicId = fileResponse.get("url").toString();
-        Community community = new Community();
-        ArrayList<String> adminId = community.getAdminId();
-        adminId.add(request.getFounderId());
-        community.setAdminId(adminId);
-        community.setCommunityName(request.getCommunityName());
-        community.setCommunityName(request.getCommunityName());
-        community.setCommunityDescription(request.getDescription());
-        community.setImageVideoUrl(filePublicId);
+        Community community = createCommunity(request, filePublicId);
         communityRepo.save(community);
         CreateCommunityResponse response = new CreateCommunityResponse();
         response.setCommunityName(community.getCommunityName());
@@ -46,6 +40,22 @@ public class CommunityService implements CommunityInterface {
         response.setId(community.getId());
         response.setMessage("Created Successfully");
         return response;
+    }
+
+    @NotNull
+    private Community createCommunity(CreateCommunityRequest request, String filePublicId) {
+        Community community = new Community();
+        ArrayList<String> adminId = community.getAdminId();
+        adminId.add(request.getToken());
+        ArrayList<String> memberId = community.getMemberId();
+        memberId.add(request.getToken());
+        community.setAdminId(adminId);
+        community.setMemberId(memberId);
+        community.setCommunityName(request.getCommunityName());
+        community.setCommunityName(request.getCommunityName());
+        community.setCommunityDescription(request.getDescription());
+        community.setImageVideoUrl(filePublicId);
+        return community;
     }
 
     private void checkImage(MultipartFile imageVideo) {

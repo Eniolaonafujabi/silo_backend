@@ -10,7 +10,7 @@ public class CreateCommunityRequest {
 
     private String founderName;
 
-    private String founderId;
+    private String token;
 
     private String communityName;
 
@@ -18,10 +18,10 @@ public class CreateCommunityRequest {
 
     private MultipartFile imageVideo;
 
-    public CreateCommunityRequest(MultipartFile file, String communityName, String communityDescription, String founderId) {
+    public CreateCommunityRequest(MultipartFile file, String communityName, String communityDescription, String token) {
         this.imageVideo = file;
         this.communityName = communityName;
         this.description = communityDescription;
-        this.founderId = founderId;
+        this.token = token;
     }
 }

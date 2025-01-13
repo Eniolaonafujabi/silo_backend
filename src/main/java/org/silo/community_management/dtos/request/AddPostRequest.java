@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class AddPostRequest {
 
-    private String memberId;
+    private String token;
 
     private String title;
 

@@ -83,8 +83,8 @@ public class UserController {
     public ResponseEntity<?> createCommunity(@RequestParam("file") MultipartFile file,
                                            @RequestParam("communityName") String communityName,
                                            @RequestParam("communityDescription") String communityDescription,
-                                           @RequestParam("founderId") String founderId) {
-        CreateCommunityRequest request = new CreateCommunityRequest(file,communityName,communityDescription,founderId);
+                                           @RequestParam("token") String token) {
+        CreateCommunityRequest request = new CreateCommunityRequest(file,communityName,communityDescription,token);
         CreateCommunityResponse response = new CreateCommunityResponse();
         try {
             response = userServices.createCommunity(request);
@@ -92,6 +92,7 @@ public class UserController {
 
         }
         catch (Exception exception) {
+            log.error("Error occurred while sending OTP: ", exception);
             return new ResponseEntity<>(new ApiResponse(exception.getMessage(), false), HttpStatus.BAD_REQUEST);
 
         }
@@ -99,11 +100,11 @@ public class UserController {
 
     @PostMapping(value = "addPost", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addPost(@RequestParam("file") MultipartFile file,
-                                             @RequestParam("memberId") String memberId,
+                                             @RequestParam("token") String token,
                                              @RequestParam("communityId") String communityId,
                                              @RequestParam("title") String title,
                                              @RequestParam("content") String content) {
-        AddPostRequest request = new AddPostRequest(memberId,title,content,file,communityId);
+        AddPostRequest request = new AddPostRequest(token,title,content,file,communityId);
         AddPostResponse response = new AddPostResponse();
         try {
             response = userServices.addPost(request);
@@ -145,7 +146,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("viewCommunity")
+    @GetMapping("viewCommunity")
     public ResponseEntity<?> viewCommunity(@RequestBody ViewCommunityRequest request) {
         ViewCommunityResponse response = new ViewCommunityResponse();
         try {

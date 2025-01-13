@@ -27,13 +27,13 @@ public class PostServices implements PostInterface{
     @Override
     public AddPostResponse addPost(AddPostRequest request) throws IOException {
         AddPostResponse response = new AddPostResponse();
-        if (communityService.validateMemberShip(request.getMemberId(),request.getCommunityId())){
+        if (communityService.validateMemberShip(request.getToken(),request.getCommunityId())){
             Post post = new Post();
             if(request.getFile().isEmpty()){
                 post.setTitle(request.getTitle());
                 post.setContent(request.getContent());
                 post.setCommunityId(request.getCommunityId());
-                post.setMemberId(request.getMemberId());
+                post.setMemberId(request.getToken());
                 postRepo.save(post);
                 response.setMessage("Successfully added post");
             }else {
@@ -42,7 +42,7 @@ public class PostServices implements PostInterface{
                 post.setTitle(request.getTitle());
                 post.setContent(request.getContent());
                 post.setCommunityId(request.getCommunityId());
-                post.setMemberId(request.getMemberId());
+                post.setMemberId(request.getToken());
                 post.setFile(filePublicId);
                 postRepo.save(post);
                 response.setMessage("Successfully added post");

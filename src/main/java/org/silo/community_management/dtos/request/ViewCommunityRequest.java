@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 public class ViewCommunityRequest {
 
-    private String memberId;
+    private String token;
 
     private String communityId;
 

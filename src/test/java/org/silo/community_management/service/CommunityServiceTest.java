@@ -11,7 +11,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -124,7 +123,7 @@ public class CommunityServiceTest {
         CreateCommunityRequest request = new CreateCommunityRequest();
         request.setCommunityName("test");
         request.setDescription("description");
-        request.setFounderId("1");
+        request.setToken("1");
         request.setImageVideo(mockFile);
         return communityService.createCommunity(request);
     }
