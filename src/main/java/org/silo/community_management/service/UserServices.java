@@ -61,7 +61,8 @@ public class UserServices implements UserInterface {
                 response.setMessage("Successfully created user");
             }else {
                 Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getFile());
-                String filePublicId = fileResponse.get("public_id").toString();
+//                String filePublicId = fileResponse.get("public_id").toString();
+                String filePublicId = fileResponse.get("url").toString();
                 User user = new User();
                 user.setName(request.getName());
                 user.setPassword(request.getPassword());
@@ -192,11 +193,12 @@ public class UserServices implements UserInterface {
 
     private void gettingUserInfo(LogInRequest request, LogInResponse response, User user, JwtToken jwtToken) throws IOException {
         if (user.getPassword().equals(request.getPassword())){
-            if (user.getImageVideo().isEmpty()){
+            if (user.getImageVideo()==null){
                 response.setBio(user.getBio());
                 response.setToken(jwtToken.getToken());
                 response.setEmail(user.getEmail());
                 response.setName(user.getName());
+                response.setPassword(user.getPassword());
                 response.setPhoneNumber(user.getPhoneNumber());
             }else {
                 byte[] file = cloudinaryService.fetchImage(user.getImageVideo());
@@ -205,6 +207,7 @@ public class UserServices implements UserInterface {
                 response.setEmail(user.getEmail());
                 response.setName(user.getName());
                 response.setPhoneNumber(user.getPhoneNumber());
+                response.setPassword(user.getPassword());
                 response.setFile(file);
             }
         }

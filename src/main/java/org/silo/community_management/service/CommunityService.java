@@ -29,7 +29,8 @@ public class CommunityService implements CommunityInterface {
     public CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException {
         checkImage(request.getImageVideo());
         Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getImageVideo());
-        String filePublicId = fileResponse.get("public_id").toString();
+//        String filePublicId = fileResponse.get("public_id").toString();
+        String filePublicId = fileResponse.get("url").toString();
         Community community = new Community();
         ArrayList<String> adminId = community.getAdminId();
         adminId.add(request.getFounderId());
@@ -56,7 +57,8 @@ public class CommunityService implements CommunityInterface {
         Community community = findCommunity(request.getCommunityId());
         checkImage(request.getImageVideo());
         Map<String, Object> fileResponse = cloudinaryService.editFile(community.getImageVideoUrl(), request.getImageVideo());
-        String filePublicId = fileResponse.get("public_id").toString();
+//        String filePublicId = fileResponse.get("public_id").toString();
+        String filePublicId = fileResponse.get("url").toString();
         community.setImageVideoUrl(filePublicId);
         community.setCommunityName(request.getCommunityName());
         community.setCommunityDescription(request.getDescription());
@@ -72,7 +74,7 @@ public class CommunityService implements CommunityInterface {
     @Override
     public ViewCommunityResponse viewCommunity(ViewCommunityRequest request) throws IOException {
         Community community = findCommunity(request.getCommunityId());
-        byte[] imageVideo = cloudinaryService.fetchImage(cloudinaryService.getImageUrl(community.getImageVideoUrl()));
+        byte[] imageVideo = cloudinaryService.fetchImage(community.getImageVideoUrl());
         ViewCommunityResponse response = new ViewCommunityResponse();
         response.setCommunityName(community.getCommunityName());
         response.setCommunityDescription(community.getCommunityDescription());

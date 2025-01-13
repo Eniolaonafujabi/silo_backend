@@ -23,9 +23,9 @@ public class UserController {
     }
 
     @PostMapping("sendOtp")
-    public ResponseEntity<?> sendOtp(@RequestParam("email") String email){
+    public ResponseEntity<?> sendOtp(@RequestBody SendEmailRequest request){
         try {
-            String message = userServices.sendOtp(email);
+            String message = userServices.sendOtp(request.getEmail());
             return new ResponseEntity<>(message, HttpStatus.OK);
         } catch (IOException e) {
             log.error("Error occurred while sending OTP: ", e);
