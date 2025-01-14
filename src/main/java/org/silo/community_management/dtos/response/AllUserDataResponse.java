@@ -5,13 +5,8 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class LogInResponse {
-
-    private String token;
-
+public class AllUserDataResponse {
     private String name;
-
-    private String password;
 
     private String email;
 
@@ -24,5 +19,4 @@ public class LogInResponse {
     private int noOfCommunityMember;
 
     private byte[] file;
-
 }

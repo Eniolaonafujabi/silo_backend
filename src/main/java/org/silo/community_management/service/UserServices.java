@@ -126,6 +126,24 @@ public class UserServices implements UserInterface {
         return response;
     }
 
+    @Override
+    public AllUserDataResponse getAllUserInfo(AllUserDataRequest allUserDataRequest) throws IOException {
+        String userId = jwtUtil.extractUsername(allUserDataRequest.getToken());
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new UserException("User not found"));
+        AllUserDataResponse response = new AllUserDataResponse();
+        response.setBio(user.getBio());
+        response.setEmail(user.getEmail());
+        response.setName(user.getName());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setNoOfCommunityMember(user.getCommunityMemberId().size());
+        response.setNoOfCommunityAdmin(user.getCommunityManagerId().size());
+        if (user.getImageVideo() != null){
+            response.setFile(cloudinaryService.fetchImage(user.getImageVideo()));
+        }
+        return response;
+    }
+
 
     @Override
     public CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException {
@@ -281,6 +299,8 @@ public class UserServices implements UserInterface {
                 response.setName(user.getName());
                 response.setPassword(user.getPassword());
                 response.setPhoneNumber(user.getPhoneNumber());
+                response.setNoOfCommunityAdmin(user.getCommunityManagerId().size());
+                response.setNoOfCommunityMember(user.getCommunityManagerId().size());
             }else {
                 byte[] file = cloudinaryService.fetchImage(user.getImageVideo());
                 response.setBio(user.getBio());
@@ -290,6 +310,8 @@ public class UserServices implements UserInterface {
                 response.setPhoneNumber(user.getPhoneNumber());
                 response.setPassword(user.getPassword());
                 response.setFile(file);
+                response.setNoOfCommunityAdmin(user.getCommunityManagerId().size());
+                response.setNoOfCommunityMember(user.getCommunityManagerId().size());
             }
         }
     }

@@ -15,6 +15,8 @@ public interface UserInterface {
 
     LogInResponse LogInAccount(LogInRequest request) throws IOException;
 
+    AllUserDataResponse getAllUserInfo(AllUserDataRequest allUserDataRequest) throws IOException;
+
     CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException;
 
     AddPostResponse addPost(AddPostRequest request) throws IOException;
