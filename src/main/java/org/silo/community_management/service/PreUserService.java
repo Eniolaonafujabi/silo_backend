@@ -79,6 +79,7 @@ public class PreUserService {
         message.setToEmail(email);
         message.setSubject("Your OTP Code");
         message.setBody("Your OTP code expires in 45 minutes.\nYour OTP is: " + otp);
-        return mailServices.sendEmail(message);
+        mailServices.sendEmail(message);
+        return otp;
     }
 }
