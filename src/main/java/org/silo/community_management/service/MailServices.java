@@ -1,4 +1,4 @@
-package org.silo.community_management;
+package org.silo.community_management.service;
 
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;

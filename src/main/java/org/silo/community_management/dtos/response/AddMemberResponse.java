@@ -7,6 +7,8 @@ import lombok.Setter;
 @Getter
 public class AddMemberResponse {
 
+    private String id;
+
     private String message;
 
 }

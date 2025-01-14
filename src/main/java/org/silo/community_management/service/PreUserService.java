@@ -1,6 +1,5 @@
 package org.silo.community_management.service;
 
-import org.silo.community_management.MailServices;
 import org.silo.community_management.data.model.PreUser;
 import org.silo.community_management.data.repo.PreUserRepo;
 import org.silo.community_management.data.repo.UserRepo;

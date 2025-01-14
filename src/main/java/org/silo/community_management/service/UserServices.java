@@ -1,8 +1,10 @@
 package org.silo.community_management.service;
 
+import org.silo.community_management.data.model.InvitedUser;
 import org.silo.community_management.data.model.JwtToken;
 import org.silo.community_management.data.model.User;
 import org.silo.community_management.data.repo.UserRepo;
+import org.silo.community_management.dtos.exceptions.ImageVideoException;
 import org.silo.community_management.dtos.exceptions.UserException;
 import org.silo.community_management.dtos.request.*;
 import org.silo.community_management.dtos.response.*;
@@ -10,6 +12,7 @@ import org.silo.community_management.dtos.util.JwtUtil;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 @Service
@@ -28,7 +31,11 @@ public class UserServices implements UserInterface {
 
     private final JwtUtil jwtUtil;
 
-    public UserServices(UserRepo userRepo, CommunityService communityService, PostServices postServices, CloudinaryService cloudinaryService, PreUserService preUserService, JwtServices jwtServices, JwtUtil jwtUtil) {
+    private final MailServices mailServices;
+
+    private final InvitedUserService invitedUserService;
+
+    public UserServices(UserRepo userRepo, CommunityService communityService, PostServices postServices, CloudinaryService cloudinaryService, PreUserService preUserService, JwtServices jwtServices, JwtUtil jwtUtil, MailServices mailServices, InvitedUserService invitedUserService) {
         this.userRepo = userRepo;
         this.communityService = communityService;
         this.postServices = postServices;
@@ -36,6 +43,8 @@ public class UserServices implements UserInterface {
         this.preUserService = preUserService;
         this.jwtServices = jwtServices;
         this.jwtUtil = jwtUtil;
+        this.mailServices = mailServices;
+        this.invitedUserService = invitedUserService;
     }
 
     @Override
@@ -50,24 +59,27 @@ public class UserServices implements UserInterface {
 
     @Override
     public CreateAccountResponse createAccount(CreateAccountRequest request) throws IOException {
+        String contentType = request.getFile().getContentType();
+        if (contentType != null && contentType.startsWith("image/"))throw new ImageVideoException("Invalid file type. Only images are supported.");
         CreateAccountResponse response = new CreateAccountResponse();
         validateRequest(request);
         validateRequest2(request.getPhoneNumber(),request.getEmail());
         if(preUserService.checkIfAccountIsVerified(request.getEmail())){
             if (request.getFile()==null){
                 User user = new User();
+                ifWasInvitedToJoinACommunity(request, user);
                 user.setName(request.getName());
                 user.setPassword(request.getPassword());
                 user.setEmail(request.getEmail());
                 user.setPhoneNumber(request.getPhoneNumber());
                 user.setBio(request.getBio());
                 userRepo.save(user);
-                response.setMessage("Successfully created user");
             }else {
                 Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getFile());
 //                String filePublicId = fileResponse.get("public_id").toString();
                 String filePublicId = fileResponse.get("url").toString();
                 User user = new User();
+                ifWasInvitedToJoinACommunity(request, user);
                 user.setName(request.getName());
                 user.setPassword(request.getPassword());
                 user.setEmail(request.getEmail());
@@ -75,12 +87,22 @@ public class UserServices implements UserInterface {
                 user.setBio(request.getBio());
                 user.setImageVideo(filePublicId);
                 userRepo.save(user);
-                response.setMessage("Successfully created user");
             }
+            response.setMessage("Successfully created user");
             return response;
         }else {
             throw new UserException("Email is not verified");
         }
+    }
+
+    private void ifWasInvitedToJoinACommunity(CreateAccountRequest request, User user) {
+        if (invitedUserService.invitedUserExists(request.getEmail())){
+            InvitedUser user1 =  invitedUserService.getInvitedUser(request.getEmail());
+            if (user1.getRole().equalsIgnoreCase("member")) user.getCommunityMemberId().add(user1.getCommunityId());
+            if (user1.getRole().equalsIgnoreCase("admin")) user.getCommunityMemberId().add(user1.getCommunityId());
+            invitedUserService.deleteInvitedUser(request.getEmail());
+        }
+        ;
     }
 
 
@@ -107,15 +129,23 @@ public class UserServices implements UserInterface {
 
     @Override
     public CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException {
+        String contentType = request.getImageVideo().getContentType();
+        if (contentType != null && contentType.startsWith("image/"))throw new ImageVideoException("Invalid file type. Only images are supported.");
         User user = userRepo.findById(jwtUtil.extractUsername(request.getToken()))
                 .orElseThrow(() -> new UserException("User not found"));
         request.setFounderName(user.getName());
         request.setToken(jwtUtil.extractUsername(request.getToken()));
-        return communityService.createCommunity(request);
+        CreateCommunityResponse createCommunityResponse = communityService.createCommunity(request);
+        ArrayList<String> userCommunity = user.getCommunityManagerId();
+        userCommunity.add(createCommunityResponse.getId());
+        user.setCommunityManagerId(userCommunity);
+        return createCommunityResponse;
     }
 
     @Override
     public AddPostResponse addPost(AddPostRequest request) throws IOException {
+        String contentType = request.getFile().getContentType();
+        if (contentType != null && contentType.startsWith("image/") || contentType.startsWith("video/"))throw new ImageVideoException("Invalid file type. Only images and video are supported.");
         AddPostResponse response = new AddPostResponse();
         String extractedtedToken = jwtUtil.extractUsername(request.getToken());
         if(communityService.validateMemberShip(extractedtedToken, request.getCommunityId())){
@@ -126,10 +156,33 @@ public class UserServices implements UserInterface {
     }
 
     @Override
-    public AddMemberResponse addMember(AddMemberRequest request) {
+    public AddMemberResponse addMember(AddMemberRequest request) throws IOException {
         AddMemberResponse response =  new AddMemberResponse();
-        if(communityService.validateMemberShipRole(request.getAdminId(), request.getCommunityId())){
-            response = communityService.addMemberToCommunity(request);
+        User userAdmin = userRepo.findById(jwtUtil.extractUsername(request.getToken()))
+                .orElseThrow(() -> new UserException("User not found"));
+        request.setToken(jwtUtil.extractUsername(request.getToken()));
+        if(communityService.validateMemberShipRole(request.getToken(), request.getCommunityId())){
+            EmailRequest emailRequest = new EmailRequest();
+            emailRequest.setToEmail(request.getEmail());
+            emailRequest.setSubject("Add Member To Community By " + userAdmin.getName());
+            emailRequest.setBody("You are required to download Silo application to be added has member of ");
+            User user = userRepo.findByEmail(request.getEmail())
+                    .orElseGet(()-> {
+                        try {
+                            mailServices.sendEmail(emailRequest);
+                            invitedUserService.saveInvitedUser(request.getEmail(),request.getCommunityId(), "member");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        return null;
+                    });
+            if (user == null){
+                response.setMessage("Email has been sent");
+                return response;
+            }
+            response = communityService.addMemberToCommunity(request,user);
+            user.getCommunityMemberId().add(response.getId());
+            userRepo.save(user);
         }else {
             throw new UserException("Member ship is not valid Can,t Add member");
         }
@@ -139,8 +192,30 @@ public class UserServices implements UserInterface {
     @Override
     public AddMemberResponse addAdmin(AddMemberRequest request) {
         AddMemberResponse response =  new AddMemberResponse();
-        if(communityService.validateMemberShipRole(request.getAdminId(), request.getCommunityId())){
-            response = communityService.addAdminToCommunity(request);
+        User userAdmin = userRepo.findById(jwtUtil.extractUsername(request.getToken()))
+                .orElseThrow(() -> new UserException("User not found"));
+        if(communityService.validateMemberShipRole(jwtUtil.extractUsername(request.getToken()), request.getCommunityId())){
+            EmailRequest emailRequest = new EmailRequest();
+            emailRequest.setToEmail(request.getEmail());
+            emailRequest.setSubject("Add Member To Community By " + userAdmin.getName());
+            emailRequest.setBody("You are required to download Silo application to be added has member of ");
+            User user = userRepo.findByEmail(request.getEmail())
+                    .orElseGet(()-> {
+                        try {
+                            mailServices.sendEmail(emailRequest);
+                            invitedUserService.saveInvitedUser(request.getEmail(),request.getCommunityId(), "admin");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        return null;
+                    });
+            if (user == null){
+                response.setMessage("Email has been sent");
+                return response;
+            }
+            response = communityService.addAdminToCommunity(request,user);
+            user.getCommunityMemberId().add(response.getId());
+            userRepo.save(user);
         }else {
             throw new UserException("Member ship is not valid Can,t Add member");
         }

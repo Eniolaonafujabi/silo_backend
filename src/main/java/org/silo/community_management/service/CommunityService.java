@@ -2,6 +2,7 @@ package org.silo.community_management.service;
 
 import org.jetbrains.annotations.NotNull;
 import org.silo.community_management.data.model.Community;
+import org.silo.community_management.data.model.User;
 import org.silo.community_management.data.repo.CommunityRepo;
 import org.silo.community_management.dtos.exceptions.CommunityException;
 import org.silo.community_management.dtos.exceptions.ImageVideoException;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -32,7 +34,7 @@ public class CommunityService implements CommunityInterface {
         Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getImageVideo());
 //        String filePublicId = fileResponse.get("public_id").toString();
         String filePublicId = fileResponse.get("url").toString();
-        Community community = createCommunity(request, filePublicId);
+        Community community = mapCommunity(request, filePublicId);
         communityRepo.save(community);
         CreateCommunityResponse response = new CreateCommunityResponse();
         response.setCommunityName(community.getCommunityName());
@@ -43,18 +45,16 @@ public class CommunityService implements CommunityInterface {
     }
 
     @NotNull
-    private Community createCommunity(CreateCommunityRequest request, String filePublicId) {
+    private Community mapCommunity(CreateCommunityRequest request, String filePublicId) {
         Community community = new Community();
         ArrayList<String> adminId = community.getAdminId();
         adminId.add(request.getToken());
-        ArrayList<String> memberId = community.getMemberId();
-        memberId.add(request.getToken());
         community.setAdminId(adminId);
-        community.setMemberId(memberId);
         community.setCommunityName(request.getCommunityName());
         community.setCommunityName(request.getCommunityName());
         community.setCommunityDescription(request.getDescription());
         community.setImageVideoUrl(filePublicId);
+        community.setLocalDateTime(LocalDateTime.now());
         return community;
     }
 
@@ -95,28 +95,30 @@ public class CommunityService implements CommunityInterface {
     }
 
     @Override
-    public AddMemberResponse addMemberToCommunity(AddMemberRequest request) {
+    public AddMemberResponse addMemberToCommunity(AddMemberRequest request, User user) {
         Community community = findCommunity(request.getCommunityId());
-        if(community.getMemberId().contains(request.getMemberId()))throw new CommunityException("Member already exists");
-        community.getMemberId().add(request.getMemberId());
+        if(community.getMemberId().contains(user.getId()) || community.getAdminId().contains(request.getToken()))throw new CommunityException("Member already exists");
+        community.getMemberId().add(user.getId());
         communityRepo.save(community);
         AddMemberResponse response = new AddMemberResponse();
+        response.setId(community.getId());
         response.setMessage("Added Successfully");
         return response;
     }
 
     @Override
-    public AddMemberResponse addAdminToCommunity(AddMemberRequest request) {
+    public AddMemberResponse addAdminToCommunity(AddMemberRequest request, User user) {
         AddMemberResponse response = new AddMemberResponse();
 
         Community community = findCommunity(request.getCommunityId());
-        if(community.getMemberId().contains(request.getMemberId())){
-            community.getMemberId().remove(request.getMemberId());
-            community.getAdminId().add(request.getMemberId());
+        if(community.getMemberId().contains(user.getId())){
+            community.getMemberId().remove(user.getId());
+            community.getAdminId().add(user.getId());
             response.setMessage("Added Successfully");
 
         }else {
-            community.getAdminId().add(request.getMemberId());
+            if (community.getAdminId().contains(request.getToken()))throw new CommunityException("Admin already exists");
+            community.getAdminId().add(user.getId());
             response.setMessage("Added Successfully");
         }
         return response;

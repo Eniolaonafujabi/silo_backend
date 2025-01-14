@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Setter
@@ -18,6 +19,8 @@ public class Community {
     private String communityDescription;
 
     private String imageVideoUrl;
+
+    private LocalDateTime localDateTime;
 
     private ArrayList<String> adminId = new ArrayList<>();
 

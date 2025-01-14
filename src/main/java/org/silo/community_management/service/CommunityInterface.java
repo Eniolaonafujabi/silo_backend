@@ -1,5 +1,6 @@
 package org.silo.community_management.service;
 
+import org.silo.community_management.data.model.User;
 import org.silo.community_management.dtos.request.*;
 import org.silo.community_management.dtos.response.*;
 
@@ -13,13 +14,15 @@ public interface CommunityInterface {
 
     ViewCommunityResponse viewCommunity(ViewCommunityRequest request) throws IOException;
 
-    AddMemberResponse addMemberToCommunity(AddMemberRequest request);
+    AddMemberResponse addMemberToCommunity(AddMemberRequest request, User user);
 
-    AddMemberResponse addAdminToCommunity(AddMemberRequest request);
+    AddMemberResponse addAdminToCommunity(AddMemberRequest request, User user);
 
     Boolean validateMemberShip(String id, String communityId);
 
     Boolean validateMemberShipRole(String id, String communityId);
+
+
 
 //    DeleteCommunityResponse DeleteCommunity(DeleteCommunityRequest request) throws IOException;
 }

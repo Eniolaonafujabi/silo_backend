@@ -19,7 +19,7 @@ public interface UserInterface {
 
     AddPostResponse addPost(AddPostRequest request) throws IOException;
 
-    AddMemberResponse addMember(AddMemberRequest request);
+    AddMemberResponse addMember(AddMemberRequest request) throws IOException;
 
     AddMemberResponse addAdmin(AddMemberRequest request);
 
