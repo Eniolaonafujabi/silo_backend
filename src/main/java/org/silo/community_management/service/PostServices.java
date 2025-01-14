@@ -4,6 +4,7 @@ import org.silo.community_management.data.model.Post;
 import org.silo.community_management.data.repo.PostRepo;
 import org.silo.community_management.dtos.request.AddPostRequest;
 import org.silo.community_management.dtos.response.AddPostResponse;
+import org.silo.community_management.dtos.util.Mapper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -30,20 +31,14 @@ public class PostServices implements PostInterface{
         if (communityService.validateMemberShip(request.getToken(),request.getCommunityId())){
             Post post = new Post();
             if(request.getFile().isEmpty()){
-                post.setTitle(request.getTitle());
-                post.setContent(request.getContent());
-                post.setCommunityId(request.getCommunityId());
-                post.setMemberId(request.getToken());
+                Mapper.map(post,request);
                 postRepo.save(post);
                 response.setMessage("Successfully added post");
             }else {
                 Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getFile());
-                String filePublicId = fileResponse.get("public_id").toString();
-                post.setTitle(request.getTitle());
-                post.setContent(request.getContent());
-                post.setCommunityId(request.getCommunityId());
-                post.setMemberId(request.getToken());
-                post.setFile(filePublicId);
+                String url = fileResponse.get("url").toString();
+                Mapper.map(post, request);
+                post.setFile(url);
                 postRepo.save(post);
                 response.setMessage("Successfully added post");
             }

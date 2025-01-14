@@ -8,6 +8,7 @@ import org.silo.community_management.dtos.exceptions.CommunityException;
 import org.silo.community_management.dtos.exceptions.ImageVideoException;
 import org.silo.community_management.dtos.request.*;
 import org.silo.community_management.dtos.response.*;
+import org.silo.community_management.dtos.util.Mapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,24 +38,14 @@ public class CommunityService implements CommunityInterface {
         Community community = mapCommunity(request, filePublicId);
         communityRepo.save(community);
         CreateCommunityResponse response = new CreateCommunityResponse();
-        response.setCommunityName(community.getCommunityName());
-        response.setCommunityDescription(community.getCommunityDescription());
-        response.setId(community.getId());
-        response.setMessage("Created Successfully");
+        Mapper.map(response,community);
         return response;
     }
 
     @NotNull
     private Community mapCommunity(CreateCommunityRequest request, String filePublicId) {
         Community community = new Community();
-        ArrayList<String> adminId = community.getAdminId();
-        adminId.add(request.getToken());
-        community.setAdminId(adminId);
-        community.setCommunityName(request.getCommunityName());
-        community.setCommunityName(request.getCommunityName());
-        community.setCommunityDescription(request.getDescription());
-        community.setImageVideoUrl(filePublicId);
-        community.setLocalDateTime(LocalDateTime.now());
+        Mapper.map(community,request,filePublicId);
         return community;
     }
 
@@ -69,15 +60,10 @@ public class CommunityService implements CommunityInterface {
         Map<String, Object> fileResponse = cloudinaryService.editFile(community.getImageVideoUrl(), request.getImageVideo());
 //        String filePublicId = fileResponse.get("public_id").toString();
         String filePublicId = fileResponse.get("url").toString();
-        community.setImageVideoUrl(filePublicId);
-        community.setCommunityName(request.getCommunityName());
-        community.setCommunityDescription(request.getDescription());
+        Mapper.map(filePublicId,community,request);
         communityRepo.save(community);
         EditCommunityResponse response = new EditCommunityResponse();
-        response.setCommunityName(community.getCommunityName());
-        response.setCommunityDescription(community.getCommunityDescription());
-        response.setId(community.getId());
-        response.setMessage("Edited Successfully");
+        Mapper.map(response,community);
         return response;
     }
 
@@ -86,11 +72,7 @@ public class CommunityService implements CommunityInterface {
         Community community = findCommunity(request.getCommunityId());
         byte[] imageVideo = cloudinaryService.fetchImage(community.getImageVideoUrl());
         ViewCommunityResponse response = new ViewCommunityResponse();
-        response.setCommunityName(community.getCommunityName());
-        response.setCommunityDescription(community.getCommunityDescription());
-        response.setId(community.getId());
-        response.setImageVideoUrl(imageVideo);
-        response.setMessage("View Community");
+        Mapper.map(imageVideo,response,community);
         return response;
     }
 

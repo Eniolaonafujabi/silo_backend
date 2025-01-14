@@ -9,6 +9,7 @@ import org.silo.community_management.dtos.exceptions.UserException;
 import org.silo.community_management.dtos.request.*;
 import org.silo.community_management.dtos.response.*;
 import org.silo.community_management.dtos.util.JwtUtil;
+import org.silo.community_management.dtos.util.Mapper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -68,11 +69,7 @@ public class UserServices implements UserInterface {
             if (request.getFile()==null){
                 User user = new User();
                 ifWasInvitedToJoinACommunity(request, user);
-                user.setName(request.getName());
-                user.setPassword(request.getPassword());
-                user.setEmail(request.getEmail());
-                user.setPhoneNumber(request.getPhoneNumber());
-                user.setBio(request.getBio());
+                Mapper.map(user,request);
                 userRepo.save(user);
             }else {
                 Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getFile());
@@ -80,11 +77,7 @@ public class UserServices implements UserInterface {
                 String filePublicId = fileResponse.get("url").toString();
                 User user = new User();
                 ifWasInvitedToJoinACommunity(request, user);
-                user.setName(request.getName());
-                user.setPassword(request.getPassword());
-                user.setEmail(request.getEmail());
-                user.setPhoneNumber(request.getPhoneNumber());
-                user.setBio(request.getBio());
+                Mapper.map(user, request);
                 user.setImageVideo(filePublicId);
                 userRepo.save(user);
             }
@@ -132,12 +125,7 @@ public class UserServices implements UserInterface {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new UserException("User not found"));
         AllUserDataResponse response = new AllUserDataResponse();
-        response.setBio(user.getBio());
-        response.setEmail(user.getEmail());
-        response.setName(user.getName());
-        response.setPhoneNumber(user.getPhoneNumber());
-        response.setNoOfCommunityMember(user.getCommunityMemberId().size());
-        response.setNoOfCommunityAdmin(user.getCommunityManagerId().size());
+        Mapper.mapGetAllUserInfo(user,response);
         if (user.getImageVideo() != null){
             response.setFile(cloudinaryService.fetchImage(user.getImageVideo()));
         }
@@ -293,25 +281,11 @@ public class UserServices implements UserInterface {
     private void gettingUserInfo(LogInRequest request, LogInResponse response, User user, JwtToken jwtToken) throws IOException {
         if (user.getPassword().equals(request.getPassword())){
             if (user.getImageVideo()==null){
-                response.setBio(user.getBio());
-                response.setToken(jwtToken.getToken());
-                response.setEmail(user.getEmail());
-                response.setName(user.getName());
-                response.setPassword(user.getPassword());
-                response.setPhoneNumber(user.getPhoneNumber());
-                response.setNoOfCommunityAdmin(user.getCommunityManagerId().size());
-                response.setNoOfCommunityMember(user.getCommunityManagerId().size());
+                Mapper.map(response, user, jwtToken);
             }else {
                 byte[] file = cloudinaryService.fetchImage(user.getImageVideo());
-                response.setBio(user.getBio());
-                response.setToken(jwtToken.getToken());
-                response.setEmail(user.getEmail());
-                response.setName(user.getName());
-                response.setPhoneNumber(user.getPhoneNumber());
-                response.setPassword(user.getPassword());
+                Mapper.map(response, user, jwtToken);
                 response.setFile(file);
-                response.setNoOfCommunityAdmin(user.getCommunityManagerId().size());
-                response.setNoOfCommunityMember(user.getCommunityManagerId().size());
             }
         }
     }
