@@ -61,7 +61,6 @@ public class UserServices implements UserInterface {
     @Override
     public CreateAccountResponse createAccount(CreateAccountRequest request) throws IOException {
         String contentType = request.getFile().getContentType();
-        if (contentType != null && contentType.startsWith("image/"))throw new ImageVideoException("Invalid file type. Only images are supported.");
         CreateAccountResponse response = new CreateAccountResponse();
         validateRequest(request);
         validateRequest2(request.getPhoneNumber(),request.getEmail());
@@ -73,6 +72,7 @@ public class UserServices implements UserInterface {
                 userRepo.save(user);
                 preUserService.deletePreUser(request.getEmail());
             }else {
+                if (contentType != null && !contentType.startsWith("image/"))throw new ImageVideoException("Invalid file type. Only images are supported.");
                 Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getFile());
 //                String filePublicId = fileResponse.get("public_id").toString();
                 String filePublicId = fileResponse.get("url").toString();
