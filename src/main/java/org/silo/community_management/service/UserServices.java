@@ -71,6 +71,7 @@ public class UserServices implements UserInterface {
                 ifWasInvitedToJoinACommunity(request, user);
                 Mapper.map(user,request);
                 userRepo.save(user);
+                preUserService.deletePreUser(request.getEmail());
             }else {
                 Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getFile());
 //                String filePublicId = fileResponse.get("public_id").toString();
@@ -80,6 +81,7 @@ public class UserServices implements UserInterface {
                 Mapper.map(user, request);
                 user.setImageVideo(filePublicId);
                 userRepo.save(user);
+                preUserService.deletePreUser(request.getEmail());
             }
             response.setMessage("Successfully created user");
             return response;
@@ -268,7 +270,7 @@ public class UserServices implements UserInterface {
     }
 
     private void validateRequest(CreateAccountRequest request) {
-        if (request.getName() == null || request.getBio().isEmpty() || request.getPhoneNumber().isEmpty() || request.getEmail().isEmpty() || request.getPassword().isEmpty()) {
+        if (request.getName() == null || request.getPhoneNumber().isEmpty() || request.getEmail().isEmpty() || request.getPassword().isEmpty()) {
             throw new UserException("Request Can,t Be Null");
         }
     }

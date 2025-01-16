@@ -20,8 +20,6 @@ public class CreateAccountRequest {
 
     private String phoneNumber;
 
-    private String bio;
-
     private MultipartFile file;
 
 }

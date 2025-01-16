@@ -28,7 +28,6 @@ public class Mapper {
         user.setPassword(request.getPassword());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setBio(request.getBio());
     }
 
     public static void map(LogInResponse response, User user, JwtToken jwtToken) {

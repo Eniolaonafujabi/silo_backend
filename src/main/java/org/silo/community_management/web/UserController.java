@@ -51,11 +51,10 @@ public class UserController {
     @PostMapping(value = "createUser", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createAccount(@RequestParam(value = "file",required = false) MultipartFile file,
                                         @RequestParam("name") String name,
-                                        @RequestParam("bio") String bio,
                                         @RequestParam("email") String email,
                                         @RequestParam("phoneNumber") String phoneNumber,
                                         @RequestParam("password") String password) {
-        CreateAccountRequest request = new CreateAccountRequest(name,password,email,phoneNumber,bio,file);
+        CreateAccountRequest request = new CreateAccountRequest(name,password,email,phoneNumber,file);
         CreateAccountResponse response = new CreateAccountResponse();
         try {
             response = userServices.createAccount(request);
