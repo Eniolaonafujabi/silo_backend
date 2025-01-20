@@ -78,11 +78,7 @@ public class UserController {
     }
 
     @PostMapping(value = "createCommunity", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createCommunity(@RequestParam("file") MultipartFile file,
-                                           @RequestParam("communityName") String communityName,
-                                           @RequestParam("communityDescription") String communityDescription,
-                                           @RequestParam("token") String token) {
-        CreateCommunityRequest request = new CreateCommunityRequest(file,communityName,communityDescription,token);
+    public ResponseEntity<?> createCommunity(@RequestBody CreateCommunityRequest request) {
         CreateCommunityResponse response = new CreateCommunityResponse();
         try {
             response = userServices.createCommunity(request);
@@ -97,12 +93,7 @@ public class UserController {
     }
 
     @PostMapping(value = "addPost", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addPost(@RequestParam("file") MultipartFile file,
-                                             @RequestParam("token") String token,
-                                             @RequestParam("communityId") String communityId,
-                                             @RequestParam("title") String title,
-                                             @RequestParam("content") String content) {
-        AddPostRequest request = new AddPostRequest(token,title,content,file,communityId);
+    public ResponseEntity<?> addPost(@ModelAttribute AddPostRequest request) {
         AddPostResponse response = new AddPostResponse();
         try {
             response = userServices.addPost(request);

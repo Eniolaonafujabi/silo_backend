@@ -31,11 +31,7 @@ public class CommunityService implements CommunityInterface {
 
     @Override
     public CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException {
-        checkImage(request.getImageVideo());
-        Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getImageVideo());
-//        String filePublicId = fileResponse.get("public_id").toString();
-        String filePublicId = fileResponse.get("url").toString();
-        Community community = mapCommunity(request, filePublicId);
+        Community community = mapCommunity(request);
         communityRepo.save(community);
         CreateCommunityResponse response = new CreateCommunityResponse();
         Mapper.map(response,community);
@@ -43,9 +39,9 @@ public class CommunityService implements CommunityInterface {
     }
 
     @NotNull
-    private Community mapCommunity(CreateCommunityRequest request, String filePublicId) {
+    private Community mapCommunity(CreateCommunityRequest request) {
         Community community = new Community();
-        Mapper.map(community,request,filePublicId);
+        Mapper.map(community,request);
         return community;
     }
 
@@ -56,11 +52,7 @@ public class CommunityService implements CommunityInterface {
     @Override
     public EditCommunityResponse editCommunity(EditCommunityRequest request) throws IOException {
         Community community = findCommunity(request.getCommunityId());
-        checkImage(request.getImageVideo());
-        Map<String, Object> fileResponse = cloudinaryService.editFile(community.getImageVideoUrl(), request.getImageVideo());
-//        String filePublicId = fileResponse.get("public_id").toString();
-        String filePublicId = fileResponse.get("url").toString();
-        Mapper.map(filePublicId,community,request);
+        Mapper.map(community,request);
         communityRepo.save(community);
         EditCommunityResponse response = new EditCommunityResponse();
         Mapper.map(response,community);

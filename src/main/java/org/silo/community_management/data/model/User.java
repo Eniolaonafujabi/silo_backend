@@ -27,8 +27,8 @@ public class User {
 
     private String profilePicture;
 
-    private ArrayList<String> communityManagerId = new ArrayList<>();
+    private ArrayList<String> listOfCommunityManagerId = new ArrayList<>();
 
-    private ArrayList<String> communityMemberId = new ArrayList<>();
+    private ArrayList<String> listOfCommunityMemberId = new ArrayList<>();
 
 }

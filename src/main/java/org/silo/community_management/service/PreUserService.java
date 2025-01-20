@@ -28,7 +28,7 @@ public class PreUserService {
 
     public String preSignup(String email) throws IOException {
         if (userRepo.findByEmail(email).isPresent())throw new PreUserException(email + " already exists");
-        if (preUserRepo.findByEmail(email).isPresent()){
+        if (preUserRepo.findPreUserByEmail(email).isPresent()){
             PreUser preUser = preUserRepo.findPreUserByEmail(email).orElseThrow(()-> new PreUserException("Pre User Not Found"));
             String otp = generateOtp();
             preUser.setOtp(otp);
@@ -71,7 +71,9 @@ public class PreUserService {
     }
 
     private String generateOtp() {
-        return String.valueOf(new Random().nextInt(999999)).substring(0, 6);
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000); // Always generates a 6-digit number
+        return String.valueOf(otp);
     }
 
     private String sendOtpEmail(String email, String otp) throws IOException {

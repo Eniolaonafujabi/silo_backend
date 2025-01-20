@@ -9,5 +9,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ApiResponse {
     private Object data;
-    private boolean message;
+    private boolean status;
 }

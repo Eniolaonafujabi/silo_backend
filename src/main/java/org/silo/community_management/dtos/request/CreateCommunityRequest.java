@@ -15,13 +15,4 @@ public class CreateCommunityRequest {
     private String communityName;
 
     private String description;
-
-    private MultipartFile imageVideo;
-
-    public CreateCommunityRequest(MultipartFile file, String communityName, String communityDescription, String token) {
-        this.imageVideo = file;
-        this.communityName = communityName;
-        this.description = communityDescription;
-        this.token = token;
-    }
 }

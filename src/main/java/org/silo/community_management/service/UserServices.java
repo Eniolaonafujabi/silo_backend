@@ -13,7 +13,6 @@ import org.silo.community_management.dtos.util.Mapper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 @Service
 public class UserServices implements UserInterface {
@@ -78,8 +77,8 @@ public class UserServices implements UserInterface {
     private void ifWasInvitedToJoinACommunity(CreateAccountRequest request, User user) {
         if (invitedUserService.invitedUserExists(request.getEmail())){
             InvitedUser user1 =  invitedUserService.getInvitedUser(request.getEmail());
-            if (user1.getRole().equalsIgnoreCase("member")) user.getCommunityMemberId().add(user1.getCommunityId());
-            if (user1.getRole().equalsIgnoreCase("admin")) user.getCommunityMemberId().add(user1.getCommunityId());
+            if (user1.getRole().equalsIgnoreCase("member")) user.getListOfCommunityMemberId().add(user1.getCommunityId());
+            if (user1.getRole().equalsIgnoreCase("admin")) user.getListOfCommunityMemberId().add(user1.getCommunityId());
             invitedUserService.deleteInvitedUser(request.getEmail());
         }
         ;
@@ -122,16 +121,12 @@ public class UserServices implements UserInterface {
 
     @Override
     public CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException {
-        String contentType = request.getImageVideo().getContentType();
-        if (contentType != null && contentType.startsWith("image/"))throw new ImageVideoException("Invalid file type. Only images are supported.");
         User user = userRepo.findById(jwtUtil.extractUsername(request.getToken()))
                 .orElseThrow(() -> new UserException("User not found"));
         request.setFounderName(user.getFirstName() + " " + user.getLastName());
         request.setToken(jwtUtil.extractUsername(request.getToken()));
         CreateCommunityResponse createCommunityResponse = communityService.createCommunity(request);
-        ArrayList<String> userCommunity = user.getCommunityManagerId();
-        userCommunity.add(createCommunityResponse.getId());
-        user.setCommunityManagerId(userCommunity);
+        user.getListOfCommunityManagerId().add(createCommunityResponse.getId());
         return createCommunityResponse;
     }
 
@@ -174,7 +169,7 @@ public class UserServices implements UserInterface {
                 return response;
             }
             response = communityService.addMemberToCommunity(request,user);
-            user.getCommunityMemberId().add(response.getId());
+            user.getListOfCommunityMemberId().add(response.getId());
             userRepo.save(user);
         }else {
             throw new UserException("Member ship is not valid Can,t Add member");
@@ -207,7 +202,7 @@ public class UserServices implements UserInterface {
                 return response;
             }
             response = communityService.addAdminToCommunity(request,user);
-            user.getCommunityMemberId().add(response.getId());
+            user.getListOfCommunityMemberId().add(response.getId());
             userRepo.save(user);
         }else {
             throw new UserException("Member ship is not valid Can,t Add member");

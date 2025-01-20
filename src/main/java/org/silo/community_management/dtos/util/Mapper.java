@@ -20,8 +20,8 @@ public class Mapper {
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
         response.setPhoneNumber(user.getPhoneNumber());
-        response.setNoOfCommunityMember(user.getCommunityMemberId().size());
-        response.setNoOfCommunityAdmin(user.getCommunityManagerId().size());
+        response.setNoOfCommunityMember(user.getListOfCommunityMemberId().size());
+        response.setNoOfCommunityAdmin(user.getListOfCommunityManagerId().size());
     }
 
     public static void map(User user, CreateAccountRequest request) {
@@ -40,8 +40,8 @@ public class Mapper {
         response.setLastName(user.getLastName());
         response.setPassword(user.getPassword());
         response.setPhoneNumber(user.getPhoneNumber());
-        response.setNoOfCommunityAdmin(user.getCommunityManagerId().size());
-        response.setNoOfCommunityMember(user.getCommunityManagerId().size());
+        response.setNoOfCommunityAdmin(user.getListOfCommunityManagerId().size());
+        response.setNoOfCommunityMember(user.getListOfCommunityManagerId().size());
     }
 
     public static void map(Post post, AddPostRequest request) {
@@ -58,19 +58,17 @@ public class Mapper {
         response.setMessage("Created Successfully");
     }
 
-    public static void map(Community community, CreateCommunityRequest request, String filePublicId) {
+    public static void map(Community community, CreateCommunityRequest request) {
         ArrayList<String> adminId = community.getAdminId();
         adminId.add(request.getToken());
         community.setAdminId(adminId);
         community.setCommunityName(request.getCommunityName());
         community.setCommunityName(request.getCommunityName());
         community.setCommunityDescription(request.getDescription());
-        community.setImageVideoUrl(filePublicId);
         community.setLocalDateTime(LocalDateTime.now());
     }
 
-    public static void map(String filePublicId, Community community, EditCommunityRequest request) {
-        community.setImageVideoUrl(filePublicId);
+    public static void map(Community community, EditCommunityRequest request) {
         community.setCommunityName(request.getCommunityName());
         community.setCommunityDescription(request.getDescription());
     }
