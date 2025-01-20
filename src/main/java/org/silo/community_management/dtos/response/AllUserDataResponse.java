@@ -6,7 +6,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class AllUserDataResponse {
-    private String name;
+    private String firstName;
+
+    private String lastName;
 
     private String email;
 

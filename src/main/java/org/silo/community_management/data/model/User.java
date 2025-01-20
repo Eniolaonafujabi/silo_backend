@@ -13,7 +13,9 @@ public class User {
 
     private String id;
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
 
     private String password;
 
@@ -23,7 +25,7 @@ public class User {
 
     private String bio;
 
-    private String imageVideo;
+    private String profilePicture;
 
     private ArrayList<String> communityManagerId = new ArrayList<>();
 

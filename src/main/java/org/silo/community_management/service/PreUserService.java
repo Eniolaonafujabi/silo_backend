@@ -47,10 +47,10 @@ public class PreUserService {
 
     public boolean verifyOtp(String email, String otp) {
         PreUser user = preUserRepo.findPreUserByEmail(email).orElseThrow(() -> new PreUserException("User not found"));
-        if(user.isVerified())return true;
+        if(user.isEmailVerified())return true;
         if (user.getOtp().equals(otp)) {
             if (user.getOtpExpiration().isAfter(LocalDateTime.now())){
-                user.setVerified(true);
+                user.setEmailVerified(true);
                 preUserRepo.save(user);
                 return true;
             }else {
@@ -65,9 +65,9 @@ public class PreUserService {
         preUserRepo.deletePreUserByEmail(email);
     }
 
-    public boolean checkIfAccountIsVerified(String email){
+    public boolean checkIfEmailIsVerified(String email){
         PreUser user = preUserRepo.findPreUserByEmail(email).orElseThrow(() -> new PreUserException("User not Verified"));
-        return user.isVerified();
+        return user.isEmailVerified();
     }
 
     private String generateOtp() {

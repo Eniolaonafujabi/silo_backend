@@ -17,14 +17,16 @@ public class Mapper {
     public static void mapGetAllUserInfo(User user, AllUserDataResponse response) {
         response.setBio(user.getBio());
         response.setEmail(user.getEmail());
-        response.setName(user.getName());
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
         response.setPhoneNumber(user.getPhoneNumber());
         response.setNoOfCommunityMember(user.getCommunityMemberId().size());
         response.setNoOfCommunityAdmin(user.getCommunityManagerId().size());
     }
 
     public static void map(User user, CreateAccountRequest request) {
-        user.setName(request.getName());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setPassword(request.getPassword());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
@@ -34,7 +36,8 @@ public class Mapper {
         response.setBio(user.getBio());
         response.setToken(jwtToken.getToken());
         response.setEmail(user.getEmail());
-        response.setName(user.getName());
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
         response.setPassword(user.getPassword());
         response.setPhoneNumber(user.getPhoneNumber());
         response.setNoOfCommunityAdmin(user.getCommunityManagerId().size());

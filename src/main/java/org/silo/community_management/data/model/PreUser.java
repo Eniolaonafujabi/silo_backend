@@ -14,7 +14,7 @@ public class PreUser {
     @Id
     private String id;
     private String email;
-    private boolean isVerified;
+    private boolean isEmailVerified;
     private String otp;
     private LocalDateTime otpExpiration;
 

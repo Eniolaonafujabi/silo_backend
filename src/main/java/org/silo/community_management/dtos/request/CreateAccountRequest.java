@@ -12,14 +12,14 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class CreateAccountRequest {
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
 
     private String password;
 
     private String email;
 
     private String phoneNumber;
-
-    private MultipartFile file;
 
 }

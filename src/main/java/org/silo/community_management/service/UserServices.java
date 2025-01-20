@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 
 @Service
 public class UserServices implements UserInterface {
@@ -60,31 +59,17 @@ public class UserServices implements UserInterface {
 
     @Override
     public CreateAccountResponse createAccount(CreateAccountRequest request) throws IOException {
-        String contentType = request.getFile().getContentType();
         CreateAccountResponse response = new CreateAccountResponse();
         validateRequest(request);
         validateRequest2(request.getPhoneNumber(),request.getEmail());
-        if(preUserService.checkIfAccountIsVerified(request.getEmail())){
-            if (request.getFile()==null){
+        if(preUserService.checkIfEmailIsVerified(request.getEmail())){
                 User user = new User();
                 ifWasInvitedToJoinACommunity(request, user);
                 Mapper.map(user,request);
                 userRepo.save(user);
                 preUserService.deletePreUser(request.getEmail());
-            }else {
-                if (contentType != null && !contentType.startsWith("image/"))throw new ImageVideoException("Invalid file type. Only images are supported.");
-                Map<String, Object> fileResponse = cloudinaryService.uploadImage(request.getFile());
-//                String filePublicId = fileResponse.get("public_id").toString();
-                String filePublicId = fileResponse.get("url").toString();
-                User user = new User();
-                ifWasInvitedToJoinACommunity(request, user);
-                Mapper.map(user, request);
-                user.setImageVideo(filePublicId);
-                userRepo.save(user);
-                preUserService.deletePreUser(request.getEmail());
-            }
-            response.setMessage("Successfully created user");
-            return response;
+                response.setMessage("Successfully created user");
+                return response;
         }else {
             throw new UserException("Email is not verified");
         }
@@ -128,8 +113,8 @@ public class UserServices implements UserInterface {
                 .orElseThrow(() -> new UserException("User not found"));
         AllUserDataResponse response = new AllUserDataResponse();
         Mapper.mapGetAllUserInfo(user,response);
-        if (user.getImageVideo() != null){
-            response.setFile(cloudinaryService.fetchImage(user.getImageVideo()));
+        if (user.getProfilePicture() != null){
+            response.setFile(cloudinaryService.fetchImage(user.getProfilePicture()));
         }
         return response;
     }
@@ -141,7 +126,7 @@ public class UserServices implements UserInterface {
         if (contentType != null && contentType.startsWith("image/"))throw new ImageVideoException("Invalid file type. Only images are supported.");
         User user = userRepo.findById(jwtUtil.extractUsername(request.getToken()))
                 .orElseThrow(() -> new UserException("User not found"));
-        request.setFounderName(user.getName());
+        request.setFounderName(user.getFirstName() + " " + user.getLastName());
         request.setToken(jwtUtil.extractUsername(request.getToken()));
         CreateCommunityResponse createCommunityResponse = communityService.createCommunity(request);
         ArrayList<String> userCommunity = user.getCommunityManagerId();
@@ -172,7 +157,7 @@ public class UserServices implements UserInterface {
         if(communityService.validateMemberShipRole(request.getToken(), request.getCommunityId())){
             EmailRequest emailRequest = new EmailRequest();
             emailRequest.setToEmail(request.getEmail());
-            emailRequest.setSubject("Add Member To Community By " + userAdmin.getName());
+            emailRequest.setSubject("Add Member To Community By " + userAdmin.getFirstName() + " " + userAdmin.getLastName());
             emailRequest.setBody("You are required to download Silo application to be added has member of ");
             User user = userRepo.findByEmail(request.getEmail())
                     .orElseGet(()-> {
@@ -205,7 +190,7 @@ public class UserServices implements UserInterface {
         if(communityService.validateMemberShipRole(jwtUtil.extractUsername(request.getToken()), request.getCommunityId())){
             EmailRequest emailRequest = new EmailRequest();
             emailRequest.setToEmail(request.getEmail());
-            emailRequest.setSubject("Add Member To Community By " + userAdmin.getName());
+            emailRequest.setSubject("Add Member To Community By " + userAdmin.getFirstName() + " " + userAdmin.getLastName());
             emailRequest.setBody("You are required to download Silo application to be added has member of ");
             User user = userRepo.findByEmail(request.getEmail())
                     .orElseGet(()-> {
@@ -270,7 +255,7 @@ public class UserServices implements UserInterface {
     }
 
     private void validateRequest(CreateAccountRequest request) {
-        if (request.getName() == null || request.getPhoneNumber().isEmpty() || request.getEmail().isEmpty() || request.getPassword().isEmpty()) {
+        if (request.getFirstName().isEmpty() && request.getLastName().isEmpty() && request.getPhoneNumber().isEmpty() && request.getEmail().isEmpty() && request.getPassword().isEmpty()) {
             throw new UserException("Request Can,t Be Null");
         }
     }
@@ -282,10 +267,10 @@ public class UserServices implements UserInterface {
 
     private void gettingUserInfo(LogInRequest request, LogInResponse response, User user, JwtToken jwtToken) throws IOException {
         if (user.getPassword().equals(request.getPassword())){
-            if (user.getImageVideo()==null){
+            if (user.getProfilePicture()==null){
                 Mapper.map(response, user, jwtToken);
             }else {
-                byte[] file = cloudinaryService.fetchImage(user.getImageVideo());
+                byte[] file = cloudinaryService.fetchImage(user.getProfilePicture());
                 Mapper.map(response, user, jwtToken);
                 response.setFile(file);
             }
