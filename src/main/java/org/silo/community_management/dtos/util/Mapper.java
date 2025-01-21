@@ -1,13 +1,7 @@
 package org.silo.community_management.dtos.util;
 
-import org.silo.community_management.data.model.Community;
-import org.silo.community_management.data.model.JwtToken;
-import org.silo.community_management.data.model.Post;
-import org.silo.community_management.data.model.User;
-import org.silo.community_management.dtos.request.AddPostRequest;
-import org.silo.community_management.dtos.request.CreateAccountRequest;
-import org.silo.community_management.dtos.request.CreateCommunityRequest;
-import org.silo.community_management.dtos.request.EditCommunityRequest;
+import org.silo.community_management.data.model.*;
+import org.silo.community_management.dtos.request.*;
 import org.silo.community_management.dtos.response.*;
 
 import java.time.LocalDateTime;
@@ -86,5 +80,19 @@ public class Mapper {
         response.setId(community.getId());
         response.setImageVideoUrl(imageVideo);
         response.setMessage("View Community");
+    }
+
+    public static void map(SubGroup subGroup, CreateSubGroupRequest request) {
+        subGroup.setName(request.getName());
+        subGroup.setDescription(request.getDescription());
+        subGroup.setFounderId(request.getFounderId());
+        subGroup.setCommunityId(request.getCommunityId());
+    }
+
+    public static void map(CreateSubGroupResponse response, SubGroup subGroup) {
+        response.setName(subGroup.getName());
+        response.setDescription(subGroup.getDescription());
+        response.setFounderId(subGroup.getFounderId());
+        response.setDateAndTimeCrated(subGroup.getDateAndTimeCrated());
     }
 }

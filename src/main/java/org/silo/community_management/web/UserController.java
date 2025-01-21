@@ -26,8 +26,9 @@ public class UserController {
         try {
             String message = userServices.sendOtp(request.getEmail());
             StringResponse response = new StringResponse();
-            response.setMessage(message);
-            return new ResponseEntity<>(new ApiResponse(response,true), HttpStatus.OK);
+            response.setOtp(message);
+            response.setStatus(true);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (IOException e) {
             log.error("Error occurred while sending OTP: ", e);
             return new ResponseEntity<>(new ApiResponse(e.getMessage(),false), HttpStatus.BAD_REQUEST);
@@ -35,12 +36,12 @@ public class UserController {
     }
 
     @PostMapping("verifyOtp")
-    public ResponseEntity<?> verifyOtp(@RequestBody verifyOtp request){
+    public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtp request){
         try {
-            userServices.verifyOtp(request.getEmail(), request.getOtp());
+            boolean result = userServices.verifyOtp(request.getEmail(), request.getOtp());
             StringResponse response = new StringResponse();
-            response.setMessage("successfully");
-            return new ResponseEntity<>(new ApiResponse(response,true), HttpStatus.OK);
+            response.setStatus(result);
+            return new ResponseEntity<>(response , HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error occurred while sending OTP: ", e);
             return new ResponseEntity<>(new ApiResponse(e.getMessage(),false), HttpStatus.BAD_REQUEST);

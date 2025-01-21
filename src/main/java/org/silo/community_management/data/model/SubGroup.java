@@ -14,14 +14,20 @@ public class SubGroup {
 
     private String id;
 
-    private String profileId;
-
     private String name;
 
     private String description;
 
-    private LocalDateTime localDateTime;
+    private LocalDateTime dateAndTimeCrated;
+
+    private String communityId;
+
+    private String founderId;
+
+    private String imageUrl;
 
     private ArrayList<String> memberId = new ArrayList<>();
+
+    private ArrayList<String> adminId = new ArrayList<>();
 
 }

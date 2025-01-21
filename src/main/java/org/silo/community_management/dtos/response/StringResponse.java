@@ -6,5 +6,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class StringResponse {
-    String message;
+    private String otp;
+    private boolean status;
 }

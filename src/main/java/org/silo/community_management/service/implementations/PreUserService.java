@@ -33,16 +33,18 @@ public class PreUserService {
             String otp = generateOtp();
             preUser.setOtp(otp);
             preUser.setOtpExpiration(LocalDateTime.now().plusMinutes(45));
+            String result = sendOtpEmail(preUser.getEmail(), otp);
             preUserRepo.save(preUser);
-            return sendOtpEmail(preUser.getEmail(), otp);
+            return result;
         }else {
             PreUser preUser = new PreUser();
             preUser.setEmail(email);
             String otp = generateOtp();
             preUser.setOtp(otp);
             preUser.setOtpExpiration(LocalDateTime.now().plusMinutes(45));
+            String result = sendOtpEmail(preUser.getEmail(), otp);
             preUserRepo.save(preUser);
-            return sendOtpEmail(preUser.getEmail(), otp);}
+            return result;}
     }
 
     public boolean verifyOtp(String email, String otp) {
