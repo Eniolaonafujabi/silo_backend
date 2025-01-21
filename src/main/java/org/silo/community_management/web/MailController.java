@@ -1,6 +1,6 @@
 package org.silo.community_management.web;
 
-import org.silo.community_management.service.MailServices;
+import org.silo.community_management.service.implementations.MailServices;
 import org.silo.community_management.dtos.request.EmailRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,4 +1,4 @@
-package org.silo.community_management.service;
+package org.silo.community_management.service.implementations;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

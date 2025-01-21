@@ -3,12 +3,11 @@ package org.silo.community_management.web;
 import lombok.extern.apachecommons.CommonsLog;
 import org.silo.community_management.dtos.request.*;
 import org.silo.community_management.dtos.response.*;
-import org.silo.community_management.service.UserServices;
+import org.silo.community_management.service.implementations.UserServices;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 

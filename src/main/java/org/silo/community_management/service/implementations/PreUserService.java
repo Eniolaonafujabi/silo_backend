@@ -1,10 +1,10 @@
-package org.silo.community_management.service;
+package org.silo.community_management.service.implementations;
 
 import org.silo.community_management.data.model.PreUser;
 import org.silo.community_management.data.repo.PreUserRepo;
 import org.silo.community_management.data.repo.UserRepo;
 import org.silo.community_management.dtos.request.EmailRequest;
-import org.silo.community_management.dtos.request.PreUserException;
+import org.silo.community_management.dtos.exceptions.PreUserException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

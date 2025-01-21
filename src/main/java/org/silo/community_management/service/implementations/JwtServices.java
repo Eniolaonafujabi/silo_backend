@@ -1,4 +1,4 @@
-package org.silo.community_management.service;
+package org.silo.community_management.service.implementations;
 
 import org.silo.community_management.data.model.JwtToken;
 import org.silo.community_management.data.model.User;

@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.silo.community_management.service.JwtServices;
+import org.silo.community_management.service.implementations.JwtServices;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.silo.community_management.dtos.util.JwtUtil;
 import org.springframework.security.core.context.SecurityContextHolder;

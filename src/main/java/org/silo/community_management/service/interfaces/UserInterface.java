@@ -1,4 +1,4 @@
-package org.silo.community_management.service;
+package org.silo.community_management.service.interfaces;
 
 import org.silo.community_management.dtos.request.*;
 import org.silo.community_management.dtos.response.*;

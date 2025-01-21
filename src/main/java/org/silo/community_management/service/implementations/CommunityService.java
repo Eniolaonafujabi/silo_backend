@@ -1,4 +1,4 @@
-package org.silo.community_management.service;
+package org.silo.community_management.service.implementations;
 
 import org.jetbrains.annotations.NotNull;
 import org.silo.community_management.data.model.Community;
@@ -9,13 +9,11 @@ import org.silo.community_management.dtos.exceptions.ImageVideoException;
 import org.silo.community_management.dtos.request.*;
 import org.silo.community_management.dtos.response.*;
 import org.silo.community_management.dtos.util.Mapper;
+import org.silo.community_management.service.interfaces.CommunityInterface;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Map;
 
 @Service
 public class CommunityService implements CommunityInterface {

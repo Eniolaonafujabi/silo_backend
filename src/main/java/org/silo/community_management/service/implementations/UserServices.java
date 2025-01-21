@@ -1,4 +1,4 @@
-package org.silo.community_management.service;
+package org.silo.community_management.service.implementations;
 
 import org.silo.community_management.data.model.InvitedUser;
 import org.silo.community_management.data.model.JwtToken;
@@ -10,6 +10,7 @@ import org.silo.community_management.dtos.request.*;
 import org.silo.community_management.dtos.response.*;
 import org.silo.community_management.dtos.util.JwtUtil;
 import org.silo.community_management.dtos.util.Mapper;
+import org.silo.community_management.service.interfaces.UserInterface;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
