@@ -27,7 +27,7 @@ public class PreUserService {
     }
 
     public String preSignup(String email) throws IOException {
-        if (userRepo.findByEmail(email).isPresent())throw new PreUserException(email + " already exists");
+        if (userRepo.findByEmail(email).isPresent())throw new PreUserException("User with this email already exists");
         if (preUserRepo.findPreUserByEmail(email).isPresent()){
             PreUser preUser = preUserRepo.findPreUserByEmail(email).orElseThrow(()-> new PreUserException("Pre User Not Found"));
             String otp = generateOtp();
