@@ -49,7 +49,6 @@ public class PreUserService {
 
     public boolean verifyOtp(String email, String otp) {
         PreUser user = preUserRepo.findPreUserByEmail(email).orElseThrow(() -> new PreUserException("User not found"));
-        if(user.isEmailVerified())return true;
         if (user.getOtp().equals(otp)) {
             if (user.getOtpExpiration().isAfter(LocalDateTime.now())){
                 user.setEmailVerified(true);

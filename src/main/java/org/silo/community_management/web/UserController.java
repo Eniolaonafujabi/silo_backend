@@ -13,6 +13,7 @@ import java.io.IOException;
 
 @CommonsLog
 @RestController("v1/")
+@CrossOrigin("*")
 public class UserController {
 
     private final UserServices userServices;
@@ -38,12 +39,14 @@ public class UserController {
     @PostMapping("verifyOtp")
     public ResponseEntity<?> verifyOtp(@RequestBody VerifyOtp request){
         try {
+            log.info(request.getEmail());
+            log.info(request.getOtp());
             boolean result = userServices.verifyOtp(request.getEmail(), request.getOtp());
             StringResponse response = new StringResponse();
             response.setStatus(result);
             return new ResponseEntity<>(response , HttpStatus.OK);
         } catch (Exception e) {
-            log.error("Error occurred while sending OTP: ", e);
+            log.error("Error occurred while verifying OTP: ", e);
             return new ResponseEntity<>(new ApiResponse(e.getMessage(),false), HttpStatus.BAD_REQUEST);
         }
     }

@@ -10,8 +10,5 @@ public interface PreUserRepo extends MongoRepository<PreUser, String> {
 
     Optional<PreUser> findPreUserByEmail(String email);
 
-    Optional<Boolean> findByEmail(String email);
-
-
     void deletePreUserByEmail(String email);
 }
