@@ -27,4 +27,14 @@ public interface UserInterface {
 
     ViewCommunityResponse viewCommunity(ViewCommunityRequest request) throws IOException;
 
+    CreateSubGroupResponse createSubGroup(CreateSubGroupRequest request);
+
+    AddMemberResponse addMemberToSubGroup(AddSubGroupMemberRequest request);
+
+    AddMemberResponse addAdminToSubGroup(AddSubGroupMemberRequest request);
+
+    GetAllSubGroupResponse getAllSubGroupInACommunity(String communityId);
+
+    boolean validateIfSubGroupNameExistInACommunity(String subGroupName, String communityId);
+
 }

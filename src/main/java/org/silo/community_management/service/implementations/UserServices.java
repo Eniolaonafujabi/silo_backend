@@ -35,7 +35,9 @@ public class UserServices implements UserInterface {
 
     private final InvitedUserService invitedUserService;
 
-    public UserServices(UserRepo userRepo, CommunityService communityService, PostServices postServices, CloudinaryService cloudinaryService, PreUserService preUserService, JwtServices jwtServices, JwtUtil jwtUtil, MailServices mailServices, InvitedUserService invitedUserService) {
+    private final SubGroupServices subGroupServices;
+
+    public UserServices(UserRepo userRepo, CommunityService communityService, PostServices postServices, CloudinaryService cloudinaryService, PreUserService preUserService, JwtServices jwtServices, JwtUtil jwtUtil, MailServices mailServices, InvitedUserService invitedUserService, SubGroupServices subGroupServices) {
         this.userRepo = userRepo;
         this.communityService = communityService;
         this.postServices = postServices;
@@ -45,6 +47,7 @@ public class UserServices implements UserInterface {
         this.jwtUtil = jwtUtil;
         this.mailServices = mailServices;
         this.invitedUserService = invitedUserService;
+        this.subGroupServices = subGroupServices;
     }
 
     @Override
@@ -220,6 +223,35 @@ public class UserServices implements UserInterface {
             throw new UserException("Member ship is not valid Can,t view community");
         }
         return response;
+    }
+
+    @Override
+    public CreateSubGroupResponse createSubGroup(CreateSubGroupRequest request) {
+        if (communityService.validateMemberShipRole(request.getFounderId(), request.getCommunityId()))
+            return subGroupServices.createSubGroup(request);
+        else {
+            throw new UserException("Member ship is not valid Can,t create sub group");
+        }
+    }
+
+    @Override
+    public AddMemberResponse addMemberToSubGroup(AddSubGroupMemberRequest request) {
+        return null;
+    }
+
+    @Override
+    public AddMemberResponse addAdminToSubGroup(AddSubGroupMemberRequest request) {
+        return null;
+    }
+
+    @Override
+    public GetAllSubGroupResponse getAllSubGroupInACommunity(String communityId) {
+        return null;
+    }
+
+    @Override
+    public boolean validateIfSubGroupNameExistInACommunity(String subGroupName, String communityId) {
+        return false;
     }
 
     private User existByEmail(String email) {

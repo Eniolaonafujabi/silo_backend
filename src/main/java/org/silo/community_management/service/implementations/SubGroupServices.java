@@ -10,9 +10,10 @@ import org.silo.community_management.dtos.response.CreateSubGroupResponse;
 import org.silo.community_management.dtos.response.GetAllSubGroupResponse;
 import org.silo.community_management.dtos.util.Mapper;
 import org.silo.community_management.service.interfaces.SubGroupInterface;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-
+@Service
 public class SubGroupServices implements SubGroupInterface {
 
     private final SubGroupRepo subGroupRepo;

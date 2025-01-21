@@ -59,7 +59,7 @@ public class Mapper {
         community.setCommunityName(request.getCommunityName());
         community.setCommunityName(request.getCommunityName());
         community.setCommunityDescription(request.getDescription());
-        community.setLocalDateTime(LocalDateTime.now());
+        community.setDateTimeOnboarded(LocalDateTime.now());
     }
 
     public static void map(Community community, EditCommunityRequest request) {
