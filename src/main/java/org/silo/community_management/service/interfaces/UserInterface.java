@@ -13,7 +13,7 @@ public interface UserInterface {
 
     CreateAccountResponse createAccount(CreateAccountRequest request) throws IOException;
 
-    LogInResponse LogInAccount(LogInRequest request) throws IOException;
+    LogInResponse logInAccount(LogInRequest request) throws IOException;
 
     AllUserDataResponse getAllUserInfo(AllUserDataRequest allUserDataRequest) throws IOException;
 

@@ -90,23 +90,35 @@ public class UserServices implements UserInterface {
 
 
     @Override
-    public LogInResponse LogInAccount(LogInRequest request) throws IOException {
+    public LogInResponse logInAccount(LogInRequest request) throws IOException {
         LogInResponse response = new LogInResponse();
         validateRequestForLogINOverAll(request);
         if (request.getEmail().isEmpty()){
             validateRequestForLogIN(request);
-            User user = existByPhoneNumber(request.getPhoneNumber());
-            JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
-            gettingUserInfo(request, response, user , jwtToken);
+            User user = userRepo.findByPhoneNumber(request.getPhoneNumber())
+                    .orElseThrow(()-> new UserException("User does not exit"));
+            if (!user.getPassword().equals(request.getPassword())){
+                throw new UserException("Wrong password");
+            }else {
+                JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
+                gettingUserInfo(response, user , jwtToken);
+                return response;
+            }
         }
 
         if (request.getPhoneNumber().isEmpty()){
             validateRequestForLogIN2(request);
-            User user = existByEmail(request.getEmail());
-            JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
-            gettingUserInfo(request, response, user , jwtToken);
+            User user = userRepo.findByEmail(request.getEmail())
+                    .orElseThrow(()-> new UserException("User does not exit"));
+            if (!user.getPassword().equals(request.getPassword())){
+                throw new UserException("Wrong password");
+            }else {
+                JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
+                gettingUserInfo(response, user , jwtToken);
+                return response;
+            }
         }
-        return response;
+        throw new UserException("All fields are required");
     }
 
     @Override
@@ -220,7 +232,7 @@ public class UserServices implements UserInterface {
         if(communityService.validateMemberShip(jwtUtil.extractUsername(request.getToken()), request.getCommunityId())){
             response = communityService.viewCommunity(request);
         }else {
-            throw new UserException("Member ship is not valid Can,t view community");
+            throw new UserException("Member ship is not valid Can,t view community.");
         }
         return response;
     }
@@ -236,7 +248,11 @@ public class UserServices implements UserInterface {
 
     @Override
     public AddMemberResponse addMemberToSubGroup(AddSubGroupMemberRequest request) {
-        return null;
+        if (communityService.validateMemberShipRole(request.getAdminId(), request.getCommunityId()))
+            return subGroupServices.addMemberToSubGroup(request);
+        else {
+            throw new UserException("Member ship is not valid Can,t create sub group");
+        }
     }
 
     @Override
@@ -255,11 +271,13 @@ public class UserServices implements UserInterface {
     }
 
     private User existByEmail(String email) {
-        return userRepo.findUserByEmail(email);
+        return userRepo.findByEmail(email)
+                .orElseThrow(()-> new UserException("User does not exit"));
     }
 
     private User existByPhoneNumber(String phoneNumber) {
-        return userRepo.findUserByPhoneNumber(phoneNumber);
+        return userRepo.findByPhoneNumber(phoneNumber)
+                .orElseThrow(()-> new UserException("User does not exit"));
     }
 
     private void validateRequestForLogINOverAll(LogInRequest request) {
@@ -271,13 +289,13 @@ public class UserServices implements UserInterface {
     }
 
     private void validateRequestForLogIN2(LogInRequest request) {
-        if (request.getEmail().isEmpty() || request.getPassword().isEmpty()){
+        if (request.getEmail().isEmpty() && request.getPassword().isEmpty()){
             throw new UserException("Request Can,t Be Null");
         }
     }
 
     private void validateRequestForLogIN(LogInRequest request) {
-        if (request.getPhoneNumber().isEmpty() || request.getPassword().isEmpty()) {
+        if (request.getPhoneNumber().isEmpty() && request.getPassword().isEmpty()) {
             throw new UserException("Request Can,t Be Null");
         }
     }
@@ -289,12 +307,11 @@ public class UserServices implements UserInterface {
     }
 
     private void validateRequest2(String phoneNumber, String email) {
-        if(userRepo.findByPhoneNumber(phoneNumber).isPresent())throw new UserException("Phone number is already in use");
-        if (userRepo.findByEmail(email).isPresent())throw new UserException("Email is already in use");
+        if(userRepo.findByPhoneNumber(phoneNumber).isPresent())throw new UserException("Phone number is already in use.");
+        if (userRepo.findByEmail(email).isPresent())throw new UserException("Email is already in use.");
     }
 
-    private void gettingUserInfo(LogInRequest request, LogInResponse response, User user, JwtToken jwtToken) throws IOException {
-        if (user.getPassword().equals(request.getPassword())){
+    private void gettingUserInfo(LogInResponse response, User user, JwtToken jwtToken) throws IOException {
             if (user.getProfilePicture()==null){
                 Mapper.map(response, user, jwtToken);
             }else {
@@ -302,7 +319,6 @@ public class UserServices implements UserInterface {
                 Mapper.map(response, user, jwtToken);
                 response.setFile(file);
             }
-        }
     }
 
 

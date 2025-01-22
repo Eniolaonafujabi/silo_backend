@@ -70,11 +70,11 @@ public class UserController {
     public ResponseEntity<?> logIn(@RequestBody LogInRequest request) {
         LogInResponse response = new LogInResponse();
         try {
-            response = userServices.LogInAccount(request);
-            return new ResponseEntity<>(new ApiResponse(response, true), HttpStatus.CREATED);
+            response = userServices.logInAccount(request);
+            return new ResponseEntity<>(new ApiResponse(response, true), HttpStatus.OK);
         }
         catch (Exception exception) {
-            log.error("Error occurred while sending OTP: ", exception);
+            log.error("Error: ", exception);
             return new ResponseEntity<>(new ApiResponse(exception.getMessage(), false), HttpStatus.BAD_REQUEST);
 
         }
