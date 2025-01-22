@@ -93,29 +93,33 @@ public class UserServices implements UserInterface {
     public LogInResponse logInAccount(LogInRequest request) throws IOException {
         LogInResponse response = new LogInResponse();
         validateRequestForLogINOverAll(request);
-        if (request.getEmail().isEmpty()){
-            validateRequestForLogIN(request);
-            User user = userRepo.findByPhoneNumber(request.getPhoneNumber())
-                    .orElseThrow(()-> new UserException("User does not exit"));
-            if (!user.getPassword().equals(request.getPassword())){
-                throw new UserException("Wrong password");
-            }else {
-                JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
-                gettingUserInfo(response, user , jwtToken);
-                return response;
+        if (request.getEmail()!=null){
+            if (request.getEmail().isEmpty()){
+                validateRequestForLogIN(request);
+                User user = userRepo.findByPhoneNumber(request.getPhoneNumber())
+                        .orElseThrow(()-> new UserException("User does not exit"));
+                if (!user.getPassword().equals(request.getPassword())){
+                    throw new UserException("Wrong password");
+                }else {
+                    JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
+                    gettingUserInfo(response, user , jwtToken);
+                    return response;
+                }
             }
         }
 
-        if (request.getPhoneNumber().isEmpty()){
-            validateRequestForLogIN2(request);
-            User user = userRepo.findByEmail(request.getEmail())
-                    .orElseThrow(()-> new UserException("User does not exit"));
-            if (!user.getPassword().equals(request.getPassword())){
-                throw new UserException("Wrong password");
-            }else {
-                JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
-                gettingUserInfo(response, user , jwtToken);
-                return response;
+        if (request.getPhoneNumber()!=null){
+            if (request.getPhoneNumber().isEmpty()){
+                validateRequestForLogIN2(request);
+                User user = userRepo.findByEmail(request.getEmail())
+                        .orElseThrow(()-> new UserException("User does not exit"));
+                if (!user.getPassword().equals(request.getPassword())){
+                    throw new UserException("Wrong password");
+                }else {
+                    JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
+                    gettingUserInfo(response, user , jwtToken);
+                    return response;
+                }
             }
         }
         throw new UserException("All fields are required");
@@ -257,27 +261,24 @@ public class UserServices implements UserInterface {
 
     @Override
     public AddMemberResponse addAdminToSubGroup(AddSubGroupMemberRequest request) {
-        return null;
+        if (communityService.validateMemberShipRole(request.getAdminId(), request.getCommunityId()))
+            return subGroupServices.addMemberToSubGroup(request);
+        else {
+            throw new UserException("Member ship is not valid Can,t create sub group");
+        }
     }
 
     @Override
-    public GetAllSubGroupResponse getAllSubGroupInACommunity(String communityId) {
-        return null;
+    public GetAllSubGroupResponse getAllSubGroupInACommunity(String communityId, String memberId) {
+        if (communityService.validateMemberShip(communityId, memberId)){
+            return subGroupServices.getAllSubGroupInACommunity(communityId);
+        }
+        else throw new UserException("Member ship is not valid Can,t get all sub group");
     }
 
     @Override
     public boolean validateIfSubGroupNameExistInACommunity(String subGroupName, String communityId) {
         return false;
-    }
-
-    private User existByEmail(String email) {
-        return userRepo.findByEmail(email)
-                .orElseThrow(()-> new UserException("User does not exit"));
-    }
-
-    private User existByPhoneNumber(String phoneNumber) {
-        return userRepo.findByPhoneNumber(phoneNumber)
-                .orElseThrow(()-> new UserException("User does not exit"));
     }
 
     private void validateRequestForLogINOverAll(LogInRequest request) {

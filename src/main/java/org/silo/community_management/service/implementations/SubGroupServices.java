@@ -64,4 +64,11 @@ public class SubGroupServices implements SubGroupInterface {
     public boolean validateIfSubGroupNameExistInACommunity(String subGroupName, String communityId) {
         return (subGroupRepo.existsByNameAndCommunityId(subGroupName,communityId));
     }
+
+    @Override
+    public boolean checkIfMemberExist(String memberId, String communityId) {
+        SubGroup subGroup = subGroupRepo.findById(communityId)
+                .orElseThrow(()-> new SubGroupException(""));
+        return subGroup.getMemberId().contains(memberId) || subGroup.getAdminId().contains(memberId);
+    }
 }

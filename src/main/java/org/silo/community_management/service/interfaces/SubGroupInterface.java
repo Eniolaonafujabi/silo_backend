@@ -18,4 +18,6 @@ public interface SubGroupInterface {
 
     boolean validateIfSubGroupNameExistInACommunity(String subGroupName, String communityId);
 
+    boolean checkIfMemberExist(String memberId, String communityId);
+
 }
