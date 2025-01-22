@@ -93,7 +93,7 @@ public class UserServices implements UserInterface {
     public LogInResponse logInAccount(LogInRequest request) throws IOException {
         LogInResponse response = new LogInResponse();
         validateRequestForLogIN(request);
-        User user = userRepo.findByPhoneNumber(request.getPhoneNumber())
+        User user = userRepo.findByEmail(request.getEmail())
                 .orElseThrow(()-> new UserException("User does not exit"));
         if (!user.getPassword().equals(request.getPassword())){
             throw new UserException("Wrong Credentials");
