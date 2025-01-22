@@ -92,37 +92,17 @@ public class UserServices implements UserInterface {
     @Override
     public LogInResponse logInAccount(LogInRequest request) throws IOException {
         LogInResponse response = new LogInResponse();
-        validateRequestForLogINOverAll(request);
-        if (request.getEmail()!=null){
-            if (request.getEmail().isEmpty()){
-                validateRequestForLogIN(request);
-                User user = userRepo.findByPhoneNumber(request.getPhoneNumber())
-                        .orElseThrow(()-> new UserException("User does not exit"));
-                if (!user.getPassword().equals(request.getPassword())){
-                    throw new UserException("Wrong password");
-                }else {
-                    JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
-                    gettingUserInfo(response, user , jwtToken);
-                    return response;
-                }
-            }
+        validateRequestForLogIN(request);
+        User user = userRepo.findByPhoneNumber(request.getPhoneNumber())
+                .orElseThrow(()-> new UserException("User does not exit"));
+        if (!user.getPassword().equals(request.getPassword())){
+            throw new UserException("Wrong Credentials");
+        }else {
+            JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
+            gettingUserInfo(response, user , jwtToken);
+            return response;
         }
 
-        if (request.getPhoneNumber()!=null){
-            if (request.getPhoneNumber().isEmpty()){
-                validateRequestForLogIN2(request);
-                User user = userRepo.findByEmail(request.getEmail())
-                        .orElseThrow(()-> new UserException("User does not exit"));
-                if (!user.getPassword().equals(request.getPassword())){
-                    throw new UserException("Wrong password");
-                }else {
-                    JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
-                    gettingUserInfo(response, user , jwtToken);
-                    return response;
-                }
-            }
-        }
-        throw new UserException("All fields are required");
     }
 
     @Override
@@ -281,13 +261,6 @@ public class UserServices implements UserInterface {
         return false;
     }
 
-    private void validateRequestForLogINOverAll(LogInRequest request) {
-        if ((request.getPhoneNumber() == null || request.getPhoneNumber().isEmpty())
-                && (request.getEmail() == null || request.getEmail().isEmpty())
-                || request.getPassword() == null || request.getPassword().isEmpty()) {
-            throw new UserException("Request fields cannot be null or empty");
-        }
-    }
 
     private void validateRequestForLogIN2(LogInRequest request) {
         if (request.getEmail().isEmpty() && request.getPassword().isEmpty()){
@@ -296,7 +269,7 @@ public class UserServices implements UserInterface {
     }
 
     private void validateRequestForLogIN(LogInRequest request) {
-        if (request.getPhoneNumber().isEmpty() && request.getPassword().isEmpty()) {
+        if (request.getEmail()==null && request.getPassword()==null) {
             throw new UserException("Request Can,t Be Null");
         }
     }
