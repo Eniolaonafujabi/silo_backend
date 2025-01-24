@@ -11,7 +11,7 @@ public class AddSubGroupMemberRequest {
 
     private String memberId;
 
-    private String adminId;
+    private String token;
 
     private String communityId;
 

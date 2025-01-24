@@ -96,7 +96,7 @@ public class UserServices implements UserInterface {
         User user = userRepo.findByEmail(request.getEmail())
                 .orElseThrow(()-> new UserException("User does not exit"));
         if (!user.getPassword().equals(request.getPassword())){
-            throw new UserException("Wrong Credentials");
+            throw new UserException("Email and password don,t match! Try Again");
         }else {
             JwtToken jwtToken = jwtServices.generateAndSaveToken(user.getId());
             gettingUserInfo(response, user , jwtToken);
@@ -223,7 +223,8 @@ public class UserServices implements UserInterface {
 
     @Override
     public CreateSubGroupResponse createSubGroup(CreateSubGroupRequest request) {
-        if (communityService.validateMemberShipRole(request.getFounderId(), request.getCommunityId()))
+        request.setToken(jwtUtil.extractUsername(request.getToken()));
+        if (communityService.validateMemberShipRole(request.getToken(), request.getCommunityId()))
             return subGroupServices.createSubGroup(request);
         else {
             throw new UserException("Member ship is not valid Can,t create sub group");
@@ -232,7 +233,8 @@ public class UserServices implements UserInterface {
 
     @Override
     public AddMemberResponse addMemberToSubGroup(AddSubGroupMemberRequest request) {
-        if (communityService.validateMemberShipRole(request.getAdminId(), request.getCommunityId()))
+        request.setToken(jwtUtil.extractUsername(request.getToken()));
+        if (communityService.validateMemberShipRole(request.getToken(), request.getCommunityId()))
             return subGroupServices.addMemberToSubGroup(request);
         else {
             throw new UserException("Member ship is not valid Can,t create sub group");
@@ -241,7 +243,7 @@ public class UserServices implements UserInterface {
 
     @Override
     public AddMemberResponse addAdminToSubGroup(AddSubGroupMemberRequest request) {
-        if (communityService.validateMemberShipRole(request.getAdminId(), request.getCommunityId()))
+        if (communityService.validateMemberShipRole(request.getToken(), request.getCommunityId()))
             return subGroupServices.addMemberToSubGroup(request);
         else {
             throw new UserException("Member ship is not valid Can,t create sub group");
@@ -249,18 +251,13 @@ public class UserServices implements UserInterface {
     }
 
     @Override
-    public GetAllSubGroupResponse getAllSubGroupInACommunity(String communityId, String memberId) {
-        if (communityService.validateMemberShip(communityId, memberId)){
+    public GetAllSubGroupResponse getAllSubGroupInACommunity(String communityId, String token) {
+        token = jwtUtil.extractUsername(token);
+        if (communityService.validateMemberShip(communityId, token)){
             return subGroupServices.getAllSubGroupInACommunity(communityId);
         }
         else throw new UserException("Member ship is not valid Can,t get all sub group");
     }
-
-    @Override
-    public boolean validateIfSubGroupNameExistInACommunity(String subGroupName, String communityId) {
-        return false;
-    }
-
 
     private void validateRequestForLogIN2(LogInRequest request) {
         if (request.getEmail().isEmpty() && request.getPassword().isEmpty()){

@@ -5,14 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class CreateSubGroupRequest {
-
-    private String name;
-
-    private String description;
-
-    private String token;
-
+public class GetAllSubGroupRequest {
     private String communityId;
-
+    private String token;
 }

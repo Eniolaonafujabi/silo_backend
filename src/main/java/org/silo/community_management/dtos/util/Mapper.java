@@ -85,7 +85,7 @@ public class Mapper {
     public static void map(SubGroup subGroup, CreateSubGroupRequest request) {
         subGroup.setName(request.getName());
         subGroup.setDescription(request.getDescription());
-        subGroup.setFounderId(request.getFounderId());
+        subGroup.setFounderId(request.getToken());
         subGroup.setCommunityId(request.getCommunityId());
     }
 

@@ -33,8 +33,6 @@ public interface UserInterface {
 
     AddMemberResponse addAdminToSubGroup(AddSubGroupMemberRequest request);
 
-    GetAllSubGroupResponse getAllSubGroupInACommunity(String communityId, String memberId);
-
-    boolean validateIfSubGroupNameExistInACommunity(String subGroupName, String communityId);
+    GetAllSubGroupResponse getAllSubGroupInACommunity(String communityId, String token);
 
 }

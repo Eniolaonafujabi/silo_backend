@@ -17,7 +17,7 @@ public class MailServices {
     private String sendGridApiKey;
 
     public String sendEmail(EmailRequest emailRequest) throws IOException {
-        Email from = new Email("eniolaonafujabi@gmail.com");
+        Email from = new Email("starboyeniolaonaja27@gmail.com");
         Email to = new Email(emailRequest.getToEmail());
         Content content = new Content("text/plain", emailRequest.getBody());
         Mail mail = new Mail(from, emailRequest.getSubject(), to, content);

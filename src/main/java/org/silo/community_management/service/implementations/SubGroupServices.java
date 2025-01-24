@@ -24,6 +24,7 @@ public class SubGroupServices implements SubGroupInterface {
 
     @Override
     public CreateSubGroupResponse createSubGroup(CreateSubGroupRequest request) {
+        if (validateIfSubGroupNameExistInACommunity(request.getName(),request.getCommunityId()))throw new SubGroupException("Name already in existence in community");
         SubGroup subGroup = new SubGroup();
         Mapper.map(subGroup,request);
         subGroupRepo.save(subGroup);
