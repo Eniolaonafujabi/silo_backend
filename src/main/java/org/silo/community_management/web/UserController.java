@@ -222,4 +222,19 @@ public class UserController {
 
         }
     }
+
+    @GetMapping("getAllUserInfo")
+    public ResponseEntity<?> getAllUserInfo(@RequestBody AllUserDataRequest request) {
+        log.info(request.getToken());
+        AllUserDataResponse response = new AllUserDataResponse();
+        try {
+            response = userServices.getAllUserInfo(request);
+            return new ResponseEntity<>(new ApiResponse(response, true), HttpStatus.CREATED);
+        }
+        catch (Exception exception) {
+            log.error("Error occurred while sending OTP: ", exception);
+            return new ResponseEntity<>(new ApiResponse(exception.getMessage(), false), HttpStatus.BAD_REQUEST);
+
+        }
+    }
 }
