@@ -29,6 +29,8 @@ public class Community {
 
     private ArrayList<String> memberId =  new ArrayList<>();
 
+    private String founderName;
+
 //    private ArrayList<String> postId = new ArrayList<>();
 
 }

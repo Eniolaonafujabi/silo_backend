@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public interface CommunityInterface {
 
-    CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException;
+    CreateCommunityResponse createCommunity(CreateCommunityRequest request, String founderName) throws IOException;
 
     EditCommunityResponse editCommunity(EditCommunityRequest request) throws IOException;
 

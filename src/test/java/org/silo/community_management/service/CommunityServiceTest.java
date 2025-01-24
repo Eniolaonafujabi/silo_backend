@@ -126,7 +126,7 @@ public class CommunityServiceTest {
         request.setDescription("description");
         request.setToken("1");
         request.setImageVideo(mockFile);
-        return communityService.createCommunity(request);
+        return communityService.createCommunity(request, );
     }
 
 }

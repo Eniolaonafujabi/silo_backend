@@ -123,9 +123,8 @@ public class UserServices implements UserInterface {
     public CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException {
         User user = userRepo.findById(jwtUtil.extractUsername(request.getToken()))
                 .orElseThrow(() -> new UserException("User not found"));
-        request.setFounderName(user.getFirstName() + " " + user.getLastName());
         request.setToken(jwtUtil.extractUsername(request.getToken()));
-        CreateCommunityResponse createCommunityResponse = communityService.createCommunity(request);
+        CreateCommunityResponse createCommunityResponse = communityService.createCommunity(request, user.getFirstName() + " " + user.getLastName());
         user.getListOfCommunityManagerId().add(createCommunityResponse.getId());
         return createCommunityResponse;
     }

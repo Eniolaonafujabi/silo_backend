@@ -8,8 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class CreateCommunityRequest {
 
-    private String founderName;
-
     private String token;
 
     private String communityName;

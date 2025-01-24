@@ -52,12 +52,12 @@ public class Mapper {
         response.setMessage("Created Successfully");
     }
 
-    public static void map(Community community, CreateCommunityRequest request) {
+    public static void map(Community community, CreateCommunityRequest request, String founderName) {
         ArrayList<String> adminId = community.getAdminId();
         adminId.add(request.getToken());
         community.setAdminId(adminId);
         community.setCommunityName(request.getCommunityName());
-        community.setCommunityName(request.getCommunityName());
+        community.setFounderName(founderName);
         community.setCommunityDescription(request.getDescription());
         community.setDateTimeOnboarded(LocalDateTime.now());
     }

@@ -28,8 +28,8 @@ public class CommunityService implements CommunityInterface {
     }
 
     @Override
-    public CreateCommunityResponse createCommunity(CreateCommunityRequest request) throws IOException {
-        Community community = mapCommunity(request);
+    public CreateCommunityResponse createCommunity(CreateCommunityRequest request, String founderName) throws IOException {
+        Community community = mapCommunity(request, founderName);
         communityRepo.save(community);
         CreateCommunityResponse response = new CreateCommunityResponse();
         Mapper.map(response,community);
@@ -37,9 +37,9 @@ public class CommunityService implements CommunityInterface {
     }
 
     @NotNull
-    private Community mapCommunity(CreateCommunityRequest request) {
+    private Community mapCommunity(CreateCommunityRequest request, String founderName) {
         Community community = new Community();
-        Mapper.map(community,request);
+        Mapper.map(community,request, founderName);
         return community;
     }
 
