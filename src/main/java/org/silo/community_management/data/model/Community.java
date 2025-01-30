@@ -23,13 +23,19 @@ public class Community {
 
     private LocalDateTime dateTimeOnboarded;
 
-    private LocalDate dateFounded;
+    private String dateFounded;
 
     private ArrayList<String> adminId = new ArrayList<>();
 
     private ArrayList<String> memberId =  new ArrayList<>();
 
+    private ArrayList<Event> events = new ArrayList<>();
+
     private String founderName;
+
+    private ArrayList<Budget> budgets = new ArrayList<>();
+
+    private ArrayList<BudgetFunds> budgetFunds = new ArrayList<>();
 
 //    private ArrayList<String> postId = new ArrayList<>();
 

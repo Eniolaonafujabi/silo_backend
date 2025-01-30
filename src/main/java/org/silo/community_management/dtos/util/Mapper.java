@@ -50,12 +50,20 @@ public class Mapper {
         response.setCommunityDescription(community.getCommunityDescription());
         response.setId(community.getId());
         response.setMessage("Created Successfully");
+        response.setBudgets(community.getBudgets());
+        response.setAdminId(community.getAdminId());
+        response.setMemberId(community.getMemberId());
+        response.setEvents(community.getEvents());
+        response.setDateFounded(community.getDateFounded());
+        response.setDateTimeOnboarded(community.getDateTimeOnboarded());
+        response.setBudgetFunds(community.getBudgetFunds());
     }
 
     public static void map(Community community, CreateCommunityRequest request, String founderName) {
         ArrayList<String> adminId = community.getAdminId();
         adminId.add(request.getToken());
         community.setAdminId(adminId);
+        community.setDateFounded(request.getDateFounded());
         community.setCommunityName(request.getCommunityName());
         community.setFounderName(founderName);
         community.setCommunityDescription(request.getDescription());

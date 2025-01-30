@@ -32,6 +32,9 @@ public class CommunityService implements CommunityInterface {
         Community community = mapCommunity(request, founderName);
         communityRepo.save(community);
         CreateCommunityResponse response = new CreateCommunityResponse();
+        if (!community.getImageVideoUrl().isEmpty()){
+            response.setImageVideoUrl(cloudinaryService.fetchImage(community.getImageVideoUrl()));
+        }
         Mapper.map(response,community);
         return response;
     }
